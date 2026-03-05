@@ -9,10 +9,16 @@ export interface IPCResponse<T> {
   error?: IPCError
 }
 
+export interface PingPayload {
+  message: 'pong'
+  timestamp: string
+}
+
 export interface AppIPC {
   versions: {
     chrome: string
     electron: string
     node: string
   }
+  ping: () => Promise<IPCResponse<PingPayload>>
 }

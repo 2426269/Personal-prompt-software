@@ -4,6 +4,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { closeDatabase, initDatabase } from './db/database'
+import { registerIpcHandlers } from './ipc'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -11,6 +12,8 @@ const RENDERER_DIST = path.join(__dirname, '../../dist')
 const PRELOAD_PATH = path.join(__dirname, '../preload/index.mjs')
 
 const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL
+
+let disposeIpcHandlers: (() => void) | null = null
 
 function createMainWindow(): BrowserWindow {
   const win = new BrowserWindow({
@@ -38,6 +41,7 @@ function createMainWindow(): BrowserWindow {
 
 void app.whenReady().then(() => {
   initDatabase()
+  disposeIpcHandlers = registerIpcHandlers()
   createMainWindow()
 
   app.on('activate', () => {
@@ -54,5 +58,7 @@ app.on('window-all-closed', () => {
 })
 
 app.on('before-quit', () => {
+  disposeIpcHandlers?.()
+  disposeIpcHandlers = null
   closeDatabase()
 })

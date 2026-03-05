@@ -1,5 +1,5 @@
 ﻿import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
-import { Layout } from './components/Layout'
+import { Layout } from './components/layout'
 
 // Placeholder pages
 import { Collection } from './pages/Collection'

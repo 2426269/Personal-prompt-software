@@ -6,9 +6,9 @@ import type { AitagImportResult } from '@shared/types/importer'
 import { AitagScraperService } from '../services/scraper/aitag-client'
 import { wrapIPC } from './wrap-ipc'
 
-const scraperService = new AitagScraperService()
-
 export function registerScraperIPC(): () => void {
+  const scraperService = new AitagScraperService()
+
   const handler = async (_event: Electron.IpcMainInvokeEvent, payload: { input: string }) =>
     wrapIPC<AitagImportResult>(() => scraperService.importByInput(payload.input))
 

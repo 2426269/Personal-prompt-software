@@ -1,5 +1,7 @@
 ﻿import type { AitagImportResult, PromptSourceType } from '@shared/types/importer'
 
+import { EntriesRepository } from '../../db/repositories/entries.repo'
+import { ImagesRepository } from '../../db/repositories/images.repo'
 import { PromptTypeDetector } from '../parser/auto-detect'
 import { ImageCacheDownloader } from './image-downloader'
 
@@ -69,6 +71,15 @@ function toImportDetectedType(type: AitagDetectedType): AitagImportResult['detec
 
   if (type === 'UNKNOWN') {
     return 'Unknown'
+  }
+
+  return type
+}
+
+function toEntryType(type: AitagImportResult['detectedType']): 'NAI' | 'SD' | 'ComfyUI' {
+  if (type === 'Unknown') {
+    // Keep persistence resilient even when detection is ambiguous.
+    return 'SD'
   }
 
   return type
@@ -187,14 +198,33 @@ export class AitagScraperService {
   constructor(
     private readonly client = new AitagClient(),
     private readonly downloader = new ImageCacheDownloader(),
+    private readonly entriesRepository = new EntriesRepository(),
+    private readonly imagesRepository = new ImagesRepository(),
   ) {}
 
   async importByInput(input: string): Promise<AitagImportResult> {
     const result = await this.client.fetchWork(input)
     const downloaded = await this.downloader.download(result.work.pixivId, result.images)
 
+    const entryId = this.entriesRepository.upsert({
+      pixivId: result.work.pixivId,
+      authorId: result.work.authorId,
+      title: result.work.title,
+      caption: result.work.caption,
+      type: toEntryType(result.detectedType),
+      tags: result.work.tags,
+      sourceUrl: result.work.sourceUrl,
+      postDate: result.work.createDate,
+      views: result.work.totalView,
+      bookmarks: result.work.totalBookmarks,
+      rawJson: JSON.stringify(result.raw),
+    })
+
+    this.imagesRepository.replaceForEntry(entryId, downloaded)
+
     return {
       ...result,
+      entryId,
       images: downloaded,
     }
   }

@@ -142,6 +142,7 @@ src/
 6. **新增解析 IPC**：`detectPromptType / parseNAI / parseSD / parseComfyUI` 已在 preload 暴露，对应 main handler 已注册。
 7. **新增抓取 IPC**：`importFromAitag` 已接到 `scraper:aitag`（并兼容 `entry:import:url`），入参为 URL 或 Pixiv ID 字符串。
 8. **返回结构统一**：解析与抓取接口全部返回 `IPCResponse<T>`，UI 可直接按 `success/data/error` 渲染。
+9. **验收补丁（2026-03-05）**：`parseNAI` 已补 `v4Prompt` 字段；`importFromAitag` 已打通 `entries/images` 入库并在返回中附带 `entryId`。
 
 ### 阻塞 & 依赖
 
@@ -157,5 +158,6 @@ src/
 | -------- | -------------------- | --------------------- | ---------- |
 | Phase 0  | C-01 ~ C-05 (5 项)   | A-01 (1 项)           | ✅ 全部完成 |
 | Phase 1A | C-1.1 ~ C-1.5 (5 项) | A-1.6 ~ A-1.10 (5 项) | 🔄 后端完成，UI对接中 |
+
 
 

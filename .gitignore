@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+.pnp/
+
+# Build
+dist/
+out/
+build/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Electron
+release/
+
+# Database (local user data)
+*.sqlite
+*.sqlite3
+data/*.db
+
+# Agent internal files
+.agent/skills/
+.agent/workflows/
+.shared/
+
+# Raw data files (too large, user-specific)
+comfyui.txt
+nai.txt
+sd.txt
+GPT需求方案.txt
+geminiAI提示词管理器需求说明书_更新.md
+
+# Pencil design files
+*.pen
+
+# Logs
+*.log
+npm-debug.log*

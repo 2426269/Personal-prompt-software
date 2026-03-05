@@ -90,8 +90,23 @@ src/
 
 ---
 
-## 📋 第二批预览 · Phase 1A：数据导入引擎（请 Codex 优先开始 C-1.1 到 C-1.5）
+## 📋 第二批执行中 · Phase 1A：数据导入引擎
 
+### 🤖 Codex 进度（后端逻辑）
+
+- `C-1.1 类型自动检测器`：✅ 完成（`src/main/services/parser/auto-detect.ts`）
+- `C-1.2 NAI 解析器`：✅ 完成（`src/main/services/parser/nai-parser.ts`）
+- `C-1.3 SD 解析器`：✅ 完成（`src/main/services/parser/sd-parser.ts`）
+- `C-1.4 ComfyUI 解析器`：✅ 完成（`src/main/services/parser/comfyui-parser.ts`）
+- `C-1.5 aitag.win 爬取器`：✅ 完成（`src/main/services/scraper/aitag-client.ts` + `image-downloader.ts`）
+
+### 给 Antigravity 的 IPC 对接点（已可调用）
+
+- `window.api.detectPromptType(input: string)`
+- `window.api.parseNAI(input: string)`
+- `window.api.parseSD(input: string)`
+- `window.api.parseComfyUI(input: string)`
+- `window.api.importFromAitag(input: string)`
 | 编号 | 任务             | 建议分配    | 原因                |
 | ---- | ---------------- | ----------- | ------------------- |
 | 1.1  | 类型自动检测器   | Codex       | 纯逻辑，无 UI       |
@@ -124,12 +139,15 @@ src/
 3. **IPC 约定**：频道常量在 `src/shared/ipc-channels.ts`，类型在 `src/shared/types/ipc.ts`；新增接口请先改 shared 类型，再改 main handler 与 preload。
 4. **数据库字段兼容**：`entries` 已预留 `custom_name` 与 `is_favorited`；后续 UI直接可用。
 5. **当前可视化自检**：主界面已有 `Ping Main Process` 按钮，可用于验证 preload → main IPC 链路。
+6. **新增解析 IPC**：`detectPromptType / parseNAI / parseSD / parseComfyUI` 已在 preload 暴露，对应 main handler 已注册。
+7. **新增抓取 IPC**：`importFromAitag` 已接到 `scraper:aitag`（并兼容 `entry:import:url`），入参为 URL 或 Pixiv ID 字符串。
+8. **返回结构统一**：解析与抓取接口全部返回 `IPCResponse<T>`，UI 可直接按 `success/data/error` 渲染。
 
 ### 阻塞 & 依赖
 
 | 阻塞方     | 等待      | 说明                                                                         |
 | ---------- | --------- | ---------------------------------------------------------------------------- |
-| A-1.6~1.10 | C-1.1~1.5 | UI 的具体渲染需要依赖真实抓取和解析回来的数据，请 Codex 优先冲刺解析器逻辑。 |
+| A-1.6~1.10 | 无        | 后端解析与抓取 IPC 已就绪，可直接开始 UI 对接。                       |
 
 ---
 
@@ -138,4 +156,6 @@ src/
 | 批次     | Codex                | Antigravity           | 状态       |
 | -------- | -------------------- | --------------------- | ---------- |
 | Phase 0  | C-01 ~ C-05 (5 项)   | A-01 (1 项)           | ✅ 全部完成 |
-| Phase 1A | C-1.1 ~ C-1.5 (5 项) | A-1.6 ~ A-1.10 (5 项) | 🔄 即将开始 |
+| Phase 1A | C-1.1 ~ C-1.5 (5 项) | A-1.6 ~ A-1.10 (5 项) | 🔄 后端完成，UI对接中 |
+
+

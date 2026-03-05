@@ -1,16 +1,40 @@
 ﻿:root {
-  --color-bg-primary: #0d1117;
-  --color-bg-secondary: #161b22;
-  --color-bg-tertiary: #21262d;
-  --color-border: #30363d;
-  --color-text-primary: #f0f6fc;
-  --color-text-secondary: #8b949e;
-  --color-accent: #1f6feb;
-
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
+  /* Backgrounds */
+  --bg-app: #0d1117;
+  --bg-panel: #161b22;
+  --bg-input: #21262d;
+  
+  /* Borders */
+  --border-default: #30363d;
+  
+  /* Text */
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #484f58;
+  
+  /* Brand & Accents */
+  --accent-blue: #1f6feb;
+  --accent-blue-hover: #388bfd;
+  --accent-blue-muted: rgba(31, 111, 235, 0.2);
+  
+  /* Status & Badges */
+  --badge-nai: #1f6feb;
+  --badge-sd: #da3633;
+  --badge-comfy: #238636;
+  --status-error: #da3633;
+  --status-success: #238636;
+  
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+  
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
 }

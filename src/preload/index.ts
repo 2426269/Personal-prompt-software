@@ -11,6 +11,24 @@ const api: AppIPC = {
   },
   ping: async () =>
     ipcRenderer.invoke(IPC_CHANNELS.APP_PING) as ReturnType<AppIPC['ping']>,
+
+  detectPromptType: async (input) =>
+    ipcRenderer.invoke(IPC_CHANNELS.PARSER_DETECT_TYPE, { input }) as ReturnType<
+      AppIPC['detectPromptType']
+    >,
+  parseNAI: async (input) =>
+    ipcRenderer.invoke(IPC_CHANNELS.PARSER_PARSE_NAI, { input }) as ReturnType<AppIPC['parseNAI']>,
+  parseSD: async (input) =>
+    ipcRenderer.invoke(IPC_CHANNELS.PARSER_PARSE_SD, { input }) as ReturnType<AppIPC['parseSD']>,
+  parseComfyUI: async (input) =>
+    ipcRenderer.invoke(IPC_CHANNELS.PARSER_PARSE_COMFYUI, { input }) as ReturnType<
+      AppIPC['parseComfyUI']
+    >,
+
+  importFromAitag: async (input) =>
+    ipcRenderer.invoke(IPC_CHANNELS.SCRAPER_AITAG_IMPORT, { input }) as ReturnType<
+      AppIPC['importFromAitag']
+    >,
 }
 
 contextBridge.exposeInMainWorld('api', api)

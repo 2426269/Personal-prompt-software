@@ -1,0 +1,9 @@
+﻿dist
+dist-electron
+node_modules
+coverage
+_renderer
+_renderer2
+_renderer3
+_renderer4
+_scaffold

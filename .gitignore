@@ -50,3 +50,5 @@ geminiAI提示词管理器需求说明书_更新.md
 # Logs
 *.log
 npm-debug.log*
+# Electron build artifacts
+dist-electron/

@@ -81,6 +81,23 @@ function resolveNegativePrompt(root: Record<string, unknown>, comment: Record<st
   )
 }
 
+function resolveV4Prompt(
+  root: Record<string, unknown>,
+  comment: Record<string, unknown>,
+): Record<string, unknown> | null {
+  const rawV4Prompt = comment.v4_prompt ?? root.v4_prompt
+
+  if (!rawV4Prompt) {
+    return null
+  }
+
+  if (typeof rawV4Prompt === 'string') {
+    return asObject(safeJsonParse(rawV4Prompt))
+  }
+
+  return asObject(rawV4Prompt)
+}
+
 export class NAIParser {
   parse(input: string | Record<string, unknown>): ParsedNAIPrompt {
     const root = resolveRootObject(input)
@@ -102,6 +119,7 @@ export class NAIParser {
       type: 'NAI',
       prompt: resolvePrompt(root, comment),
       negativePrompt: resolveNegativePrompt(root, comment),
+      v4Prompt: resolveV4Prompt(root, comment),
       steps,
       sampler,
       scale,

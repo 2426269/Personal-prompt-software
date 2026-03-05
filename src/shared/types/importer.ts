@@ -15,6 +15,7 @@ export interface ParsedNAIPrompt {
   type: 'NAI'
   prompt: string
   negativePrompt: string
+  v4Prompt: Record<string, unknown> | null
   steps: number | null
   sampler: string | null
   scale: number | null
@@ -104,6 +105,7 @@ export interface AitagImportResult {
   detectedType: Exclude<PromptSourceType, 'Unknown'> | 'Unknown'
   work: AitagWorkInfo
   images: AitagImage[]
+  entryId?: string
   raw: {
     work: Record<string, unknown>
     images: Record<string, unknown>[]

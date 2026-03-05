@@ -1,0 +1,75 @@
+.detailPage {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  background-color: var(--bg-app);
+}
+
+.leftColumn {
+  width: 320px;
+  min-width: 320px;
+  background-color: var(--bg-panel);
+  border-right: 1px solid var(--border-default);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: var(--space-4);
+  gap: var(--space-4);
+}
+
+.workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: var(--space-6);
+  position: relative;
+}
+
+.rightColumn {
+  width: 380px;
+  min-width: 380px;
+  background-color: var(--bg-panel);
+  border-left: 1px solid var(--border-default);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: var(--space-4);
+  gap: var(--space-4);
+}
+
+/* Sections & Typography */
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  margin-bottom: var(--space-2);
+}
+
+.card {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: auto;
+  justify-content: flex-end;
+}
+
+.btnPrimary {
+  background-color: var(--accent-blue);
+  color: #fff;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.btnPrimary:hover {
+  background-color: var(--accent-blue-hover);
+}

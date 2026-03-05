@@ -3,6 +3,7 @@ import { Layout } from './components/layout'
 
 // Placeholder pages
 import { Collection } from './pages/Collection'
+import { Detail } from './pages/Detail'
 import { Favorites } from './pages/Favorites'
 import { Gallery } from './pages/Gallery'
 import { Settings } from './pages/Settings'
@@ -20,6 +21,7 @@ export function App() {
           <Route path="workflows" element={<Workflows />} />
           <Route path="testing" element={<Testing />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="entry/:id" element={<Detail />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

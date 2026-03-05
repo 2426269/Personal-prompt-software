@@ -3,6 +3,8 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { closeDatabase, initDatabase } from './db/database'
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const RENDERER_DIST = path.join(__dirname, '../../dist')
@@ -35,6 +37,7 @@ function createMainWindow(): BrowserWindow {
 }
 
 void app.whenReady().then(() => {
+  initDatabase()
   createMainWindow()
 
   app.on('activate', () => {
@@ -48,4 +51,8 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+app.on('before-quit', () => {
+  closeDatabase()
 })

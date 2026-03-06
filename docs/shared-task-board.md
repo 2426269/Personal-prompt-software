@@ -211,7 +211,12 @@ src/
 
 > 本期任务原属于 Phase 1，但在前期由于不影响主干流转被暂时搁置，现在重新安排进行收尾。
 
-### 🤖 安排给 Codex 的后端补漏 (C-1.11)\r\n\r\n- **状态**：✅ 完成\r\n- **完成情况**：已补充图片缓存管理 IPC，支持读取缓存目录大小/文件数/幽灵文件统计，以及按模式执行缓存清理：\`orphans\`（清理未被数据库引用的缓存文件）、\`missing_refs\`（清理数据库中的失效本地路径引用）、\`all\`（清空全部本地缓存并同步将 images.local_path 置空）。\r\n- **对 Antigravity 说明**：可直接调用 \`window.api.getImageCacheStatus()\` 展示缓存占用和风险统计，调用 \`window.api.cleanupImageCache({ mode })\` 提供“清理幽灵缓存 / 修复失效引用 / 全量清空缓存”按钮。\r\n\r\n### 🤖 安排给 Codex 的后端补漏 (C-1.11)
+### 🤖 安排给 Codex 的后端补漏 (C-1.11)
+
+- **状态**：✅ 完成
+- **完成情况**：已补充图片缓存管理 IPC，支持读取缓存目录大小/文件数/幽灵文件统计，以及按模式执行缓存清理：`orphans`（清理未被数据库引用的缓存文件）、`missing_refs`（清理数据库中的失效本地路径引用）、`all`（清空全部本地缓存并同步将 `images.local_path` 置空）。
+- **对 Antigravity 说明**：可直接调用 `window.api.getImageCacheStatus()` 展示缓存占用和风险统计，调用 `window.api.cleanupImageCache({ mode })` 提供“清理幽灵缓存 / 修复失效引用 / 全量清空缓存”按钮。
+
 
 - **C-1.11 图片清理相关 IPC**：
   - 核心痛点：现在图片无限堆积在本地，需要提供配置项（如 `maxCacheDbBytes`）并提供清空无用缩略图或大图的 IPC（类似 `clearImageCache()`）。如果暂不涉及复杂逻辑，至少提供：获取当前图片缓存目录大小、删除单张不存在引用的幽灵图片等接口。（视后端规划而定，只要解决“爆仓风险”即可）

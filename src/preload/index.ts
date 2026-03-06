@@ -29,16 +29,23 @@ const api: AppIPC = {
     ipcRenderer.invoke(IPC_CHANNELS.SCRAPER_AITAG_IMPORT, { input }) as ReturnType<
       AppIPC['importFromAitag']
     >,
-
   importFromText: async (text) =>
     ipcRenderer.invoke(IPC_CHANNELS.ENTRY_IMPORT_TEXT, { text }) as ReturnType<
       AppIPC['importFromText']
     >,
-
   importFromFile: async (filePath) =>
     ipcRenderer.invoke(IPC_CHANNELS.ENTRY_IMPORT_FILE, { filePath }) as ReturnType<
       AppIPC['importFromFile']
     >,
+
+  listEntries: async (params) =>
+    ipcRenderer.invoke(IPC_CHANNELS.DB_ENTRIES_LIST, params) as ReturnType<AppIPC['listEntries']>,
+  getEntry: async (id) =>
+    ipcRenderer.invoke(IPC_CHANNELS.DB_ENTRIES_GET, { id }) as ReturnType<AppIPC['getEntry']>,
+  updateEntry: async (input) =>
+    ipcRenderer.invoke(IPC_CHANNELS.DB_ENTRIES_UPDATE, input) as ReturnType<AppIPC['updateEntry']>,
+  deleteEntry: async (input) =>
+    ipcRenderer.invoke(IPC_CHANNELS.DB_ENTRIES_DELETE, input) as ReturnType<AppIPC['deleteEntry']>,
 }
 
 contextBridge.exposeInMainWorld('api', api)

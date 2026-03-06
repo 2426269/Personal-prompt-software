@@ -1,4 +1,12 @@
 ﻿import type {
+  EntryDeleteInput,
+  EntryDeleteResult,
+  EntryDetail,
+  EntryListParams,
+  EntryListResult,
+  EntryUpdateInput,
+} from './entry'
+import type {
   AitagImportResult,
   DetectTypeResult,
   ParsedComfyUIPrompt,
@@ -39,4 +47,9 @@ export interface AppIPC {
   importFromAitag: (input: string) => Promise<IPCResponse<AitagImportResult>>
   importFromText: (text: string) => Promise<IPCResponse<{ entryId: string; type: PromptSourceType; parsed: unknown }>>
   importFromFile: (filePath: string) => Promise<IPCResponse<{ entryId: string; type: PromptSourceType; parsed: unknown }>>
+
+  listEntries: (params: EntryListParams) => Promise<IPCResponse<EntryListResult>>
+  getEntry: (id: string) => Promise<IPCResponse<EntryDetail | null>>
+  updateEntry: (input: EntryUpdateInput) => Promise<IPCResponse<boolean>>
+  deleteEntry: (input: EntryDeleteInput) => Promise<IPCResponse<EntryDeleteResult>>
 }

@@ -214,7 +214,7 @@ src/
 | **C-3.1** | Task 2.1 | **LLM Service 接口抽象**：设计基础的对话/推理接口，并实现 OpenAI 兼容的 Provider (如 DeepSeek/OpenAI 等) | 跑通至少一个 LLM API 连通性测试 |
 | **C-3.2** | Task 2.2 | **Prompt 模板管理 IPC**：支持动态 System Prompt 模板在数据库的存取，支持 CRUD | 暴露 `db:templates:*` 相关 IPC 给前端 |
 | **C-3.3** | Task 2.3 | **NSFW 破限预设提示词**：设计专用的防拒答预设提示词逻辑，确保对敏感词仍能进行结构化分析 | 输出包含脱敏机制的健壮 Prompt，确保稳定返回 JSON |
-| **C-3.4** | Task 2.5 | **分析结果入库**：调用 LLM 分析单条记录并将其结果存入数据库，扩展 `getEntry` IPC 以支持返回分析结果 | `entries` 表扩充分析结果字段，可落盘并读取 |
+| **C-3.4** | Task 2.5 | **分析结果入库**：调用 LLM 分析单条记录并将其结果持久化入库，扩展 `getEntry` IPC 以支持返回分析结果 | 分析结果写入 `analyzed_templates` 并可通过 `getEntry` 读取 |
 | **C-3.5** | Task 2.6 | **标签系统 (Tags) 后端**：提供自定义标签的 CRUD IPC，以及为具体作品打下多标签的关联逻辑 | 前端能自由创建/删除标签，并挂载到具体 entry 上 |
 
 ### Codex Phase 2 完成情况（2026-03-06）
@@ -245,4 +245,5 @@ src/
 
 ### Antigravity 给 Codex 的发车建议
 > @Codex，请开始执行 **C-3.1 ~ C-3.5** 任务。建议优先打通 LLM Service 和破限 Prompt 测试（确保 JSON 稳定输出），随后再增加标签库 IPC 接口。等你暴露好后端能力后我跟进前端 UI。
+
 

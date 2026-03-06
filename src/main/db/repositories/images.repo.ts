@@ -55,4 +55,30 @@ export class ImagesRepository {
 
     tx()
   }
+
+  listByEntryId(entryId: string): AitagImage[] {
+    const statement = this.db.prepare<
+      [string],
+      {
+        image_index: number
+        ai_json: string | null
+        prompt_text: string | null
+        original_url: string | null
+        local_path: string | null
+      }
+    >(`
+      SELECT image_index, ai_json, prompt_text, original_url, local_path
+      FROM images
+      WHERE entry_id = ?
+      ORDER BY image_index ASC
+    `)
+
+    return statement.all(entryId).map((row) => ({
+      index: row.image_index,
+      aiJson: row.ai_json ?? '',
+      promptText: row.prompt_text ?? '',
+      originalUrl: row.original_url ?? '',
+      localPath: row.local_path,
+    }))
+  }
 }

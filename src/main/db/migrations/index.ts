@@ -1,8 +1,9 @@
 ﻿import type { Database } from 'better-sqlite3'
 
 import { initialSchemaMigration, type Migration } from './001_initial_schema'
+import { entrySoftDeleteMigration } from './002_entry_soft_delete'
 
-const MIGRATIONS: Migration[] = [initialSchemaMigration]
+const MIGRATIONS: Migration[] = [initialSchemaMigration, entrySoftDeleteMigration]
 
 function ensureMigrationTable(db: Database): void {
   db.exec(`

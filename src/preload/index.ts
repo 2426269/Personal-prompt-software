@@ -47,6 +47,11 @@ const api: AppIPC = {
   deleteEntry: async (input) =>
     ipcRenderer.invoke(IPC_CHANNELS.DB_ENTRIES_DELETE, input) as ReturnType<AppIPC['deleteEntry']>,
 
+  getImageCacheStatus: async () =>
+    ipcRenderer.invoke(IPC_CHANNELS.IMAGE_CACHE_STATUS) as ReturnType<AppIPC['getImageCacheStatus']>,
+  cleanupImageCache: async (input) =>
+    ipcRenderer.invoke(IPC_CHANNELS.IMAGE_CACHE_CLEANUP, input) as ReturnType<AppIPC['cleanupImageCache']>,
+
   listTemplates: async () =>
     ipcRenderer.invoke(IPC_CHANNELS.DB_TEMPLATES_LIST) as ReturnType<AppIPC['listTemplates']>,
   getTemplate: async (id) =>

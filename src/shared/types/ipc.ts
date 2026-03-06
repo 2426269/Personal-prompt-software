@@ -6,6 +6,7 @@
   EntryListResult,
   EntryUpdateInput,
 } from './entry'
+import type { ImageCacheCleanupInput, ImageCacheCleanupResult, ImageCacheStatus } from './image-cache'
 import type {
   AnalyzeEntryInput,
   AnalyzeEntryResult,
@@ -62,6 +63,9 @@ export interface AppIPC {
   getEntry: (id: string) => Promise<IPCResponse<EntryDetail | null>>
   updateEntry: (input: EntryUpdateInput) => Promise<IPCResponse<boolean>>
   deleteEntry: (input: EntryDeleteInput) => Promise<IPCResponse<EntryDeleteResult>>
+
+  getImageCacheStatus: () => Promise<IPCResponse<ImageCacheStatus>>
+  cleanupImageCache: (input: ImageCacheCleanupInput) => Promise<IPCResponse<ImageCacheCleanupResult>>
 
   listTemplates: () => Promise<IPCResponse<PromptTemplate[]>>
   getTemplate: (id: string) => Promise<IPCResponse<PromptTemplate | null>>

@@ -6,6 +6,10 @@ import type { AitagImage } from '@shared/types/importer'
 
 import { getDatabase } from '../database'
 
+export interface ImageLocalPathRow {
+  local_path: string | null
+}
+
 export class ImagesRepository {
   private readonly db: Database
 
@@ -80,5 +84,42 @@ export class ImagesRepository {
       originalUrl: row.original_url ?? '',
       localPath: row.local_path,
     }))
+  }
+
+  listLocalPaths(): string[] {
+    const statement = this.db.prepare<[], ImageLocalPathRow>(`
+      SELECT local_path
+      FROM images
+      WHERE local_path IS NOT NULL AND local_path != ''
+    `)
+
+    return statement
+      .all()
+      .flatMap((row) => (typeof row.local_path === 'string' && row.local_path.length > 0 ? [row.local_path] : []))
+  }
+
+  clearLocalPaths(paths: string[]): number {
+    if (paths.length === 0) {
+      return 0
+    }
+
+    const placeholders = paths.map(() => '?').join(', ')
+    const statement = this.db.prepare(`
+      UPDATE images
+      SET local_path = NULL
+      WHERE local_path IN (${placeholders})
+    `)
+
+    return statement.run(...paths).changes
+  }
+
+  clearAllLocalPaths(): number {
+    const statement = this.db.prepare(`
+      UPDATE images
+      SET local_path = NULL
+      WHERE local_path IS NOT NULL AND local_path != ''
+    `)
+
+    return statement.run().changes
   }
 }

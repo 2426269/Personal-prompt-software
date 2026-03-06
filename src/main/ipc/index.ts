@@ -1,5 +1,6 @@
 ﻿import { registerAppIPC } from './app.ipc'
 import { registerEntriesIPC } from './entries.ipc'
+import { registerImageCacheIPC } from './image-cache.ipc'
 import { registerLLMIPC } from './llm.ipc'
 import { registerParserIPC } from './parser.ipc'
 import { registerScraperIPC } from './scraper.ipc'
@@ -11,6 +12,7 @@ export function registerIpcHandlers(): () => void {
   const unregisterEntriesIPC = registerEntriesIPC()
   const unregisterParserIPC = registerParserIPC()
   const unregisterScraperIPC = registerScraperIPC()
+  const unregisterImageCacheIPC = registerImageCacheIPC()
   const unregisterTemplatesIPC = registerTemplatesIPC()
   const unregisterLLMIPC = registerLLMIPC()
   const unregisterTagsIPC = registerTagsIPC()
@@ -20,6 +22,7 @@ export function registerIpcHandlers(): () => void {
     unregisterEntriesIPC()
     unregisterParserIPC()
     unregisterScraperIPC()
+    unregisterImageCacheIPC()
     unregisterTemplatesIPC()
     unregisterLLMIPC()
     unregisterTagsIPC()

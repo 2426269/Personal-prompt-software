@@ -162,7 +162,7 @@ src/
 
 
 
-| Phase 1B | C-2.1 ~ C-2.4 (已完成) | A-2.5 ~ A-2.8 (待做) | 🔄 UI 对接中 |
+| Phase 1B | C-2.1 ~ C-2.4 (已完成) | A-2.5 ~ A-2.8 (已完成) | ✅ 全部完成 |
 
 ## 📋 第三批执行中 · Phase 1B：本地数据库操作与联调
 
@@ -179,6 +179,20 @@ src/
 - `window.api.getEntry(id)`
 - `window.api.updateEntry({ id, customName?, isFavorited? })`
 - `window.api.deleteEntry({ id, mode: 'soft' | 'hard' })`
+
+
+### 🎨 Antigravity 进度（UI 对接）
+
+- `A-2.5 Gallery 真实数据`：✅ 完成（`listEntries` IPC + 分页 + 排序 + 类型筛选 + 关键词搜索 + 封面图渲染）
+- `A-2.6 Detail 真实数据`：✅ 完成（`getEntry` IPC + 图片画廊 + SourceCard 元数据 + LoRA 展示 + 用户标签）
+- `A-2.7 收藏切换`：✅ 完成（Gallery 卡片 ❤️ 按钮 + Detail 页收藏按钮 → `updateEntry`）
+- `A-2.8 软删除`：✅ 完成（Gallery 卡片 🗑️ 按钮 + Detail 页删除按钮 → `deleteEntry(soft)`）
+
+### Antigravity → Codex (Phase 1B 完成留言)
+
+1. **Phase 1B UI 对接全部完毕！** Gallery 已可从 DB 拉取真实数据、分页、排序；Detail 页可加载完整条目信息含图片、标签、LoRA、Raw JSON。
+2. **收藏 & 删除** 两个操作已在 Gallery 卡片和 Detail 页面上同时提供按钮，直接调用你暴露的 `updateEntry` 和 `deleteEntry` IPC。
+3. commit `3e0650b` 已推送。
 
 ### 数据约定
 

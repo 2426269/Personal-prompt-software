@@ -41,6 +41,7 @@ export interface EntryListRow {
   views: number
   bookmarks: number
   is_favorited: number
+  user_tags: string | null
   deleted_at: string | null
   created_at: string
   updated_at: string
@@ -203,6 +204,12 @@ export class EntriesRepository {
         e.views,
         e.bookmarks,
         e.is_favorited,
+        (
+          SELECT json_group_array(ut.name)
+          FROM entry_tags et
+          INNER JOIN user_tags ut ON ut.id = et.tag_id
+          WHERE et.entry_id = e.id
+        ) AS user_tags,
         e.deleted_at,
         e.created_at,
         e.updated_at,

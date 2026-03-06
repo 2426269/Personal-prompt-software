@@ -1,5 +1,5 @@
-﻿import type { EntryAnalysisResult } from './llm'
-import type { AitagImage, PromptTag, PromptSourceType } from './importer'
+﻿import type { AitagImage, PromptSourceType, PromptTag } from './importer'
+import type { EntryAnalysisResult } from './llm'
 import type { UserTag } from './tag'
 
 export type EntrySortBy = 'created_at' | 'updated_at' | 'post_date' | 'bookmarks' | 'views'
@@ -30,6 +30,7 @@ export interface EntryListItem {
   bookmarks: number
   isFavorited: boolean
   tags: string[]
+  userTags: string[]
   imageCount: number
   coverImage: AitagImage | null
   deletedAt: string | null

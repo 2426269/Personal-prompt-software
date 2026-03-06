@@ -1,11 +1,11 @@
 ﻿import type {
-  EntryDeleteInput,
-  EntryDeleteResult,
-  EntryDetail,
-  EntryListItem,
-  EntryListParams,
-  EntryListResult,
-  EntryUpdateInput,
+    EntryDeleteInput,
+    EntryDeleteResult,
+    EntryDetail,
+    EntryListItem,
+    EntryListParams,
+    EntryListResult,
+    EntryUpdateInput,
 } from '@shared/types/entry'
 import type { PromptTag } from '@shared/types/importer'
 
@@ -161,6 +161,7 @@ export class EntriesService {
       bookmarks: row.bookmarks,
       isFavorited: row.is_favorited === 1,
       tags: parseTags(row.tags),
+      userTags: parseTags(row.user_tags),
       imageCount: row.image_count,
       coverImage:
         row.cover_original_url || row.cover_local_path

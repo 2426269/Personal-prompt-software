@@ -56,9 +56,9 @@ export function Collection() {
   const filteredEntries = entries.filter((entry) => {
     if (favOnly && !entry.isFavorited) return false
     if (selectedTagId) {
-      // Check if entry's tags array contains the selected tag name
+      // Check if entry's userTags array contains the selected tag name
       const selectedTag = tags.find((t) => t.id === selectedTagId)
-      if (selectedTag && !entry.tags.includes(selectedTag.name)) return false
+      if (selectedTag && (!entry.userTags || !entry.userTags.includes(selectedTag.name))) return false
     }
     return true
   })

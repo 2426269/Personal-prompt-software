@@ -11,8 +11,10 @@ import type { PromptTag } from '@shared/types/importer'
 
 import { EntriesRepository, type EntryDetailRow, type EntryListRow } from '../../db/repositories/entries.repo'
 import { ImagesRepository } from '../../db/repositories/images.repo'
+import { LLMService } from '../llm/llm-service'
 import { ComfyUIParser } from '../parser/comfyui-parser'
 import { SDParser } from '../parser/sd-parser'
+import { TagsService } from '../tags/tags.service'
 
 function parseTags(rawValue: string | null): string[] {
   if (!rawValue) {
@@ -61,6 +63,8 @@ export class EntriesService {
   constructor(
     private readonly entriesRepository = new EntriesRepository(),
     private readonly imagesRepository = new ImagesRepository(),
+    private readonly tagsService = new TagsService(),
+    private readonly llmService = new LLMService(),
     private readonly sdParser = new SDParser(),
     private readonly comfyuiParser = new ComfyUIParser(),
   ) {}
@@ -93,7 +97,8 @@ export class EntriesService {
     }
 
     const images = this.imagesRepository.listByEntryId(id)
-    const userTags = this.entriesRepository.listUserTags(id)
+    const userTagRecords = this.tagsService.getByEntryId(id)
+    const analysis = this.llmService.getAnalysisForEntry(id)
 
     return {
       id: row.id,
@@ -111,10 +116,12 @@ export class EntriesService {
       bookmarks: row.bookmarks,
       isFavorited: row.is_favorited === 1,
       sourceTags: parseTags(row.tags),
-      userTags,
+      userTags: userTagRecords.map((tag) => tag.name),
+      userTagRecords,
       loras: this.extractLoras(row, images),
       rawJson: row.raw_json,
       images,
+      analysis,
       deletedAt: row.deleted_at,
       createdAt: row.created_at,
       updatedAt: row.updated_at,

@@ -1,4 +1,6 @@
-﻿import type { AitagImage, PromptTag, PromptSourceType } from './importer'
+﻿import type { EntryAnalysisResult } from './llm'
+import type { AitagImage, PromptTag, PromptSourceType } from './importer'
+import type { UserTag } from './tag'
 
 export type EntrySortBy = 'created_at' | 'updated_at' | 'post_date' | 'bookmarks' | 'views'
 export type EntrySortOrder = 'asc' | 'desc'
@@ -60,9 +62,11 @@ export interface EntryDetail {
   isFavorited: boolean
   sourceTags: string[]
   userTags: string[]
+  userTagRecords: UserTag[]
   loras: PromptTag[]
   rawJson: string
   images: AitagImage[]
+  analysis: EntryAnalysisResult | null
   deletedAt: string | null
   createdAt: string
   updatedAt: string

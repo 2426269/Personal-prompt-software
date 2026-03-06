@@ -2,8 +2,13 @@
 
 import { initialSchemaMigration, type Migration } from './001_initial_schema'
 import { entrySoftDeleteMigration } from './002_entry_soft_delete'
+import { llmTemplatesAndAnalysisMigration } from './003_llm_templates_and_analysis'
 
-const MIGRATIONS: Migration[] = [initialSchemaMigration, entrySoftDeleteMigration]
+const MIGRATIONS: Migration[] = [
+  initialSchemaMigration,
+  entrySoftDeleteMigration,
+  llmTemplatesAndAnalysisMigration,
+]
 
 function ensureMigrationTable(db: Database): void {
   db.exec(`

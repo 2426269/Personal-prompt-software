@@ -7,6 +7,14 @@
   EntryUpdateInput,
 } from './entry'
 import type {
+  AnalyzeEntryInput,
+  AnalyzeEntryResult,
+  LLMConnectionTestInput,
+  LLMConnectionTestResult,
+  LLMModelConfigInput,
+  LLMModelConfigSummary,
+} from './llm'
+import type {
   AitagImportResult,
   DetectTypeResult,
   ParsedComfyUIPrompt,
@@ -14,6 +22,8 @@ import type {
   ParsedSDPrompt,
   PromptSourceType,
 } from './importer'
+import type { EntryTagAssignInput, UserTag, UserTagInput } from './tag'
+import type { PromptTemplate, PromptTemplateInput } from './template'
 
 export interface IPCError {
   code: string
@@ -52,4 +62,21 @@ export interface AppIPC {
   getEntry: (id: string) => Promise<IPCResponse<EntryDetail | null>>
   updateEntry: (input: EntryUpdateInput) => Promise<IPCResponse<boolean>>
   deleteEntry: (input: EntryDeleteInput) => Promise<IPCResponse<EntryDeleteResult>>
+
+  listTemplates: () => Promise<IPCResponse<PromptTemplate[]>>
+  getTemplate: (id: string) => Promise<IPCResponse<PromptTemplate | null>>
+  saveTemplate: (input: PromptTemplateInput) => Promise<IPCResponse<PromptTemplate>>
+  deleteTemplate: (id: string) => Promise<IPCResponse<boolean>>
+
+  listLLMConfigs: () => Promise<IPCResponse<LLMModelConfigSummary[]>>
+  saveLLMConfig: (input: LLMModelConfigInput) => Promise<IPCResponse<LLMModelConfigSummary>>
+  deleteLLMConfig: (id: string) => Promise<IPCResponse<boolean>>
+  testLLMConfig: (input: LLMConnectionTestInput) => Promise<IPCResponse<LLMConnectionTestResult>>
+  analyzeEntry: (input: AnalyzeEntryInput) => Promise<IPCResponse<AnalyzeEntryResult>>
+
+  listTags: () => Promise<IPCResponse<UserTag[]>>
+  createTag: (input: UserTagInput) => Promise<IPCResponse<UserTag>>
+  updateTag: (input: UserTagInput) => Promise<IPCResponse<UserTag>>
+  deleteTag: (id: string) => Promise<IPCResponse<boolean>>
+  assignTagsToEntry: (input: EntryTagAssignInput) => Promise<IPCResponse<UserTag[]>>
 }

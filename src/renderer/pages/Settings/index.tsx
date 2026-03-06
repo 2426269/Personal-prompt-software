@@ -1,5 +1,6 @@
 import type { ImageCacheCleanupMode, ImageCacheCleanupResult, ImageCacheStatus } from '@shared/types/image-cache'
 import { useCallback, useEffect, useState } from 'react'
+import { TemplateEditor } from '../../components/template/TemplateEditor'
 import styles from './Settings.module.css'
 
 function formatBytes(bytes: number) {
@@ -157,6 +158,11 @@ export function Settings() {
         ) : (
           <div className={styles.loading}>无法读取缓存状态数据。</div>
         )}
+      </section>
+
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Prompt 模板管理</h2>
+        <TemplateEditor />
       </section>
     </div>
   )

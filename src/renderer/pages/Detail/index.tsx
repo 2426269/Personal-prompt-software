@@ -1,5 +1,8 @@
+import { AnalysisPanel } from '@renderer/components/entry/AnalysisPanel'
 import { ImageGallery } from '@renderer/components/entry/ImageGallery'
+import { TagManager } from '@renderer/components/entry/TagManager'
 import type { EntryDetail } from '@shared/types/entry'
+import type { UserTag } from '@shared/types/tag'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { RawPayload } from '../../components/entry/RawPayload'
@@ -15,6 +18,7 @@ export function Detail() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [galleryIndex, setGalleryIndex] = useState<number | null>(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
 
   const fetchEntry = useCallback(async () => {
     if (!id) return
@@ -67,6 +71,26 @@ export function Detail() {
 
   const handleCopyPrompt = (text: string) => {
     void navigator.clipboard.writeText(text)
+  }
+
+  const handleAnalyze = async () => {
+    if (!entry) return
+    try {
+      setIsAnalyzing(true)
+      const res = await api.analyzeEntry({ entryId: entry.id })
+      if (res.success && res.data) {
+        const analysisResult = res.data.analysis
+        setEntry((prev) => prev ? { ...prev, analysis: analysisResult } : prev)
+      } else {
+        const msg = res.error ? (typeof res.error === 'string' ? res.error : res.error.message) : '分析失败'
+        alert(`分析失败: ${msg}`)
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err)
+      alert(`分析出错: ${msg}`)
+    } finally {
+      setIsAnalyzing(false)
+    }
   }
 
   // Parse rawJson to extract prompt data
@@ -149,17 +173,21 @@ export function Detail() {
           </div>
         )}
 
-        {/* User Tags */}
-        {entry.userTags.length > 0 && (
-          <div>
-            <h3 className={styles.sectionTitle}>用户标签</h3>
-            <div className={styles.tagList}>
-              {entry.userTags.map((tag) => (
-                <span key={tag} className={styles.tagPill}>{tag}</span>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* User Tags — interactive */}
+        <div>
+          <h3 className={styles.sectionTitle}>用户标签</h3>
+          <TagManager
+            entryId={entry.id}
+            currentTags={entry.userTagRecords}
+            onTagsChanged={(newTags: UserTag[]) => {
+              setEntry((prev) => prev ? {
+                ...prev,
+                userTagRecords: newTags,
+                userTags: newTags.map((t: UserTag) => t.name),
+              } : prev)
+            }}
+          />
+        </div>
 
         {/* Loras */}
         {entry.loras.length > 0 && (
@@ -232,6 +260,14 @@ export function Detail() {
             <p style={{ color: 'var(--text-secondary)' }}>此条目没有关联图片</p>
           </div>
         )}
+
+        {/* LLM Analysis Results */}
+        <h3 style={{ marginTop: 'var(--space-4)' }}>🧠 LLM 分析结果</h3>
+        <AnalysisPanel
+          analysis={entry.analysis}
+          isAnalyzing={isAnalyzing}
+          onAnalyze={() => void handleAnalyze()}
+        />
       </main>
 
       {/* Right Column: Metadata & Raw */}

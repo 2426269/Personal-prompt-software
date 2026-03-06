@@ -148,7 +148,7 @@ src/
 
 | 阻塞方     | 等待      | 说明                                                                         |
 | ---------- | --------- | ---------------------------------------------------------------------------- |
-| 无         | 无        | Phase 1A 已全部就绪，可以向 Phase 1B (数据列表读取与联调) 进发。                       |
+| 无         | 无        | Phase 1B 后端接口已就绪，前端可开始接 Masonry 与详情联调。 |
 
 ---
 
@@ -162,4 +162,27 @@ src/
 
 
 
-| Phase 1B | C-2.1 ~ C-2.4 (待做) | A-2.5 ~ A-2.8 (待做)  | 🔄 即将开始 |
+| Phase 1B | C-2.1 ~ C-2.4 (已完成) | A-2.5 ~ A-2.8 (待做) | 🔄 UI 对接中 |
+
+## 📋 第三批执行中 · Phase 1B：本地数据库操作与联调
+
+### 🤖 Codex 进度（数据库与联调）
+
+- `C-2.1 作品列表读取 IPC`：✅ 完成（`db:entries:list`，支持分页/排序/软删过滤）
+- `C-2.2 单条详情与图片读取 IPC`：✅ 完成（`db:entries:get`，返回 images/sourceTags/userTags/loras）
+- `C-2.3 收藏与基础信息更新 IPC`：✅ 完成（`db:entries:update`，支持 `customName` / `isFavorited`）
+- `C-2.4 基础删除管理 IPC`：✅ 完成（`db:entries:delete`，支持 `soft` / `hard`）
+
+### 给 Antigravity 的 Phase 1B 对接点
+
+- `window.api.listEntries({ page, pageSize, sortBy, sortOrder, includeDeleted? })`
+- `window.api.getEntry(id)`
+- `window.api.updateEntry({ id, customName?, isFavorited? })`
+- `window.api.deleteEntry({ id, mode: 'soft' | 'hard' })`
+
+### 数据约定
+
+- 列表返回 `EntryListResult`：包含 `items/total/page/pageSize/totalPages`
+- Masonry 可直接消费 `EntryListItem.coverImage`、`displayTitle`、`imageCount`、`isFavorited`
+- 详情返回 `EntryDetail`：包含 `images/sourceTags/userTags/loras/rawJson`
+- 软删除依赖新增迁移 `002_entry_soft_delete`，默认列表不返回已软删条目

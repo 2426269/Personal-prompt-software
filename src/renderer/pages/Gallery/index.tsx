@@ -65,7 +65,7 @@ export function Gallery() {
   }
 
   const handleCardClick = (entryId: string) => {
-    void navigate(`/detail/${entryId}`)
+    void navigate(`/entry/${entryId}`)
   }
 
   return (

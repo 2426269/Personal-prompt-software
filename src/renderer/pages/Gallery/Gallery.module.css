@@ -8,7 +8,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-4);
+  flex-shrink: 0;
 }
 
 .title {
@@ -49,20 +50,148 @@
   border-radius: var(--radius-full);
   font-weight: 500;
   transition: background-color 0.2s;
+  white-space: nowrap;
 }
 
 .importBtn:hover {
   background-color: var(--accent-blue-hover);
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: var(--space-4);
+/* Filter bar */
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  flex-shrink: 0;
+}
+
+.filterChip {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-default);
+  background-color: var(--bg-input);
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.filterChip:hover {
+  border-color: var(--accent-blue);
+  color: var(--text-primary);
+}
+
+.filterChipActive {
+  background-color: rgba(31, 111, 235, 0.15);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+  font-weight: 500;
+}
+
+.filterLabel {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-right: var(--space-1);
+}
+
+/* Masonry grid */
+.masonryGrid {
+  column-count: 4;
+  column-gap: var(--space-4);
   overflow-y: auto;
+  flex: 1;
   padding-bottom: var(--space-8);
 }
 
+@media (max-width: 1400px) {
+  .masonryGrid {
+    column-count: 3;
+  }
+}
+
+@media (max-width: 1000px) {
+  .masonryGrid {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 600px) {
+  .masonryGrid {
+    column-count: 1;
+  }
+}
+
+.masonryItem {
+  break-inside: avoid;
+  margin-bottom: var(--space-4);
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.masonryItem:hover {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 1px var(--accent-blue);
+}
+
+.masonryImage {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.masonryInfo {
+  padding: var(--space-2) var(--space-3);
+}
+
+.masonryTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.masonryMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.typeBadge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.typeBadge.nai {
+  background-color: rgba(138, 43, 226, 0.2);
+  color: var(--badge-nai);
+}
+
+.typeBadge.sd {
+  background-color: rgba(0, 123, 255, 0.2);
+  color: var(--badge-sd);
+}
+
+.typeBadge.comfyui {
+  background-color: rgba(255, 165, 0, 0.2);
+  color: var(--badge-comfy);
+}
+
+/* Empty state */
 .emptyState {
   flex: 1;
   display: flex;
@@ -76,4 +205,12 @@
   font-size: 48px;
   margin-bottom: var(--space-4);
   opacity: 0.5;
+}
+
+/* Results count */
+.resultCount {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: var(--space-3);
+  flex-shrink: 0;
 }

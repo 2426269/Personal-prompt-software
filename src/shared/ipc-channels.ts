@@ -8,6 +8,8 @@
 
   SCRAPER_AITAG_IMPORT: 'scraper:aitag',
   ENTRY_IMPORT_URL: 'entry:import:url',
+  ENTRY_IMPORT_TEXT: 'entry:import:text',
+  ENTRY_IMPORT_FILE: 'entry:import:file',
 } as const
 
 export type IPCChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS]

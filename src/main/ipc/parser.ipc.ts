@@ -10,6 +10,7 @@ import type {
 
 import { PromptTypeDetector } from '../services/parser/auto-detect'
 import { ComfyUIParser } from '../services/parser/comfyui-parser'
+import { LocalImportService } from '../services/parser/local-import'
 import { NAIParser } from '../services/parser/nai-parser'
 import { SDParser } from '../services/parser/sd-parser'
 import { wrapIPC } from './wrap-ipc'
@@ -18,6 +19,7 @@ const detector = new PromptTypeDetector()
 const naiParser = new NAIParser()
 const sdParser = new SDParser()
 const comfyuiParser = new ComfyUIParser()
+const localImportService = new LocalImportService()
 
 export function registerParserIPC(): () => void {
   ipcMain.handle(IPC_CHANNELS.PARSER_DETECT_TYPE, async (_event, payload: { input: string }) =>
@@ -36,10 +38,20 @@ export function registerParserIPC(): () => void {
     wrapIPC<ParsedComfyUIPrompt>(() => comfyuiParser.parse(payload.input)),
   )
 
+  ipcMain.handle(IPC_CHANNELS.ENTRY_IMPORT_TEXT, async (_event, payload: { text: string }) =>
+    wrapIPC(() => localImportService.importFromText(payload.text)),
+  )
+
+  ipcMain.handle(IPC_CHANNELS.ENTRY_IMPORT_FILE, async (_event, payload: { filePath: string }) =>
+    wrapIPC(() => localImportService.importFromFile(payload.filePath)),
+  )
+
   return () => {
     ipcMain.removeHandler(IPC_CHANNELS.PARSER_DETECT_TYPE)
     ipcMain.removeHandler(IPC_CHANNELS.PARSER_PARSE_NAI)
     ipcMain.removeHandler(IPC_CHANNELS.PARSER_PARSE_SD)
     ipcMain.removeHandler(IPC_CHANNELS.PARSER_PARSE_COMFYUI)
+    ipcMain.removeHandler(IPC_CHANNELS.ENTRY_IMPORT_TEXT)
+    ipcMain.removeHandler(IPC_CHANNELS.ENTRY_IMPORT_FILE)
   }
 }

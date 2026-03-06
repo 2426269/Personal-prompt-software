@@ -1,5 +1,4 @@
-/* eslint-disable */
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import styles from './ImportModal.module.css'
 
 type TabType = 'url' | 'paste' | 'file'
@@ -14,10 +13,14 @@ export function ImportModal({ isOpen, onClose, onSuccess }: ImportModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>('url')
   const [urlInput, setUrlInput] = useState('')
   const [pasteInput, setPasteInput] = useState('')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   if (!isOpen) return null
+
+  const api = window.api
 
   const handleImport = async () => {
     setIsSubmitting(true)
@@ -25,21 +28,39 @@ export function ImportModal({ isOpen, onClose, onSuccess }: ImportModalProps) {
 
     try {
       if (activeTab === 'url') {
-        const api = window.api
         const res = await api.importFromAitag(urlInput)
         if (res.success && res.data?.entryId) {
           onSuccess(res.data.entryId)
           onClose()
         } else {
-          setErrorMsg(res.error?.message || '抓取失败，请检查 URL。')
+          setErrorMsg(res.error?.message ?? '抓取失败，请检查 URL。')
         }
       } else if (activeTab === 'paste') {
-        // WIP: Implement later for raw parsing mapping to DB entries.
-        // For Phase 1A, Codex exposed parse endpoints, but storing it is not yet fully exposed as a single "import" endpoint for raw text.
-        // We will mock this or handle later.
-        setErrorMsg('纯文本解析入库后端尚未实现一件连贯接口，目前只支持 Aitag URL 抓取。')
-      } else {
-        setErrorMsg('文件导入暂未实现。')
+        if (!pasteInput.trim()) {
+          setErrorMsg('请先粘贴提示词文本。')
+          return
+        }
+        const res = await api.importFromText(pasteInput)
+        if (res.success && res.data?.entryId) {
+          onSuccess(res.data.entryId)
+          onClose()
+        } else {
+          setErrorMsg(res.error?.message ?? '文本解析失败，请检查格式。')
+        }
+      } else if (activeTab === 'file') {
+        if (!selectedFile) {
+          setErrorMsg('请先选择一个文件。')
+          return
+        }
+        // Electron File objects have a .path property with the absolute path
+        const filePath = (selectedFile as unknown as { path: string }).path
+        const res = await api.importFromFile(filePath)
+        if (res.success && res.data?.entryId) {
+          onSuccess(res.data.entryId)
+          onClose()
+        } else {
+          setErrorMsg(res.error?.message ?? '文件解析失败。')
+        }
       }
     } catch (err: unknown) {
       const e = err as Error
@@ -48,6 +69,20 @@ export function ImportModal({ isOpen, onClose, onSuccess }: ImportModalProps) {
       setIsSubmitting(false)
     }
   }
+
+  const handleFileClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedFile(e.target.files?.[0] ?? null)
+  }
+
+  const isDisabled =
+    isSubmitting ||
+    (activeTab === 'url' && !urlInput) ||
+    (activeTab === 'paste' && !pasteInput) ||
+    (activeTab === 'file' && !selectedFile)
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -96,8 +131,9 @@ export function ImportModal({ isOpen, onClose, onSuccess }: ImportModalProps) {
             <div className={styles.inputGroup}>
               <label className={styles.label}>粘贴参数文本 (SD/NAI/ComfyUI 均可)</label>
               <textarea
-                className={`${styles.input} ${styles.textarea} font-mono`}
-                placeholder="在此处粘贴包含随机种子的魔法生成参数..."
+                className={`${styles.input} ${styles.textarea}`}
+                style={{ fontFamily: 'var(--font-mono)' }}
+                placeholder={'在此处粘贴 AI 生图参数文本...\n支持 NAI / Stable Diffusion / ComfyUI 格式'}
                 value={pasteInput}
                 onChange={(e) => setPasteInput(e.target.value)}
               />
@@ -105,11 +141,29 @@ export function ImportModal({ isOpen, onClose, onSuccess }: ImportModalProps) {
           )}
 
           {activeTab === 'file' && (
-            <div className={styles.fileArea}>
-              <div>📁 点击或拖拽文件到此处</div>
-              <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                支持带有 Exif/PNG Chunk 元数据的图片，或 ComfyUI JSON 格式文件。
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>选择本地图片或 JSON/TXT 文件</label>
+              <div
+                className={styles.fileArea}
+                onClick={handleFileClick}
+              >
+                <div>📁 点击选择文件</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                  支持 .png / .jpg / .webp (读取 Exif 元数据) 或 .json / .txt
+                </div>
+                {selectedFile && (
+                  <div style={{ marginTop: '8px', color: 'var(--accent-blue)', fontWeight: 500 }}>
+                    已选择: {selectedFile.name}
+                  </div>
+                )}
               </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".txt,.json,.png,.jpg,.jpeg,.webp"
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
+              />
             </div>
           )}
 
@@ -131,7 +185,7 @@ export function ImportModal({ isOpen, onClose, onSuccess }: ImportModalProps) {
           <button
             className={`${styles.btn} ${styles.btnSubmit}`}
             onClick={() => void handleImport()}
-            disabled={isSubmitting || (activeTab === 'url' && !urlInput) || (activeTab === 'paste' && !pasteInput)}
+            disabled={isDisabled}
           >
             {isSubmitting ? '处理中...' : '开始导入'}
           </button>

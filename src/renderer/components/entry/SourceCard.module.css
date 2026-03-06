@@ -1,18 +1,25 @@
 .sourceCard {
   display: flex;
-  align-items: center;
-  gap: var(--space-2);
+  flex-direction: column;
+  gap: var(--space-3);
   background-color: var(--bg-input);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
-  padding: var(--space-2) var(--space-3);
-  width: fit-content;
+  padding: var(--space-4);
+  width: 100%;
+}
+
+.sourceHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .indicator {
   width: 8px;
   height: 8px;
   border-radius: var(--radius-full);
+  flex-shrink: 0;
 }
 
 .indicator.nai {
@@ -34,14 +41,91 @@
   background-color: var(--text-muted);
 }
 
-.label {
+.typeLabel {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-primary);
 }
 
-.subLabel {
+.modelName {
   font-size: 12px;
   color: var(--text-secondary);
   font-family: var(--font-mono);
+  margin-left: auto;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.metaRow .metaLabel {
+  color: var(--text-muted);
+  min-width: 56px;
+  flex-shrink: 0;
+}
+
+.metaRow .metaValue {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.metaRow .metaLink {
+  color: var(--accent-blue);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.metaRow .metaLink:hover {
+  text-decoration: underline;
+}
+
+.caption {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.tagPill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background-color: rgba(31, 111, 235, 0.15);
+  color: var(--accent-blue);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.statsRow {
+  display: flex;
+  gap: var(--space-4);
+  font-size: 12px;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-default);
+  padding-top: var(--space-2);
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.statItem .statIcon {
+  font-size: 14px;
 }

@@ -39,7 +39,7 @@ export class EntriesRepository {
   }
 
   upsert(input: UpsertEntryInput): string {
-    const existing = this.findByPixivId(input.pixivId)
+    const existing = input.pixivId ? this.findByPixivId(input.pixivId) : null
     const entryId = input.entryId ?? existing?.id ?? randomUUID()
 
     const statement = this.db.prepare(

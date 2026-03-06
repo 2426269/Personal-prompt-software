@@ -4,6 +4,7 @@
   ParsedComfyUIPrompt,
   ParsedNAIPrompt,
   ParsedSDPrompt,
+  PromptSourceType,
 } from './importer'
 
 export interface IPCError {
@@ -36,4 +37,6 @@ export interface AppIPC {
   parseComfyUI: (input: string) => Promise<IPCResponse<ParsedComfyUIPrompt>>
 
   importFromAitag: (input: string) => Promise<IPCResponse<AitagImportResult>>
+  importFromText: (text: string) => Promise<IPCResponse<{ entryId: string; type: PromptSourceType; parsed: unknown }>>
+  importFromFile: (filePath: string) => Promise<IPCResponse<{ entryId: string; type: PromptSourceType; parsed: unknown }>>
 }

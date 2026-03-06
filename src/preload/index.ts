@@ -29,6 +29,16 @@ const api: AppIPC = {
     ipcRenderer.invoke(IPC_CHANNELS.SCRAPER_AITAG_IMPORT, { input }) as ReturnType<
       AppIPC['importFromAitag']
     >,
+
+  importFromText: async (text) =>
+    ipcRenderer.invoke(IPC_CHANNELS.ENTRY_IMPORT_TEXT, { text }) as ReturnType<
+      AppIPC['importFromText']
+    >,
+
+  importFromFile: async (filePath) =>
+    ipcRenderer.invoke(IPC_CHANNELS.ENTRY_IMPORT_FILE, { filePath }) as ReturnType<
+      AppIPC['importFromFile']
+    >,
 }
 
 contextBridge.exposeInMainWorld('api', api)

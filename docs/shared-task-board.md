@@ -107,18 +107,18 @@ src/
 - `window.api.parseSD(input: string)`
 - `window.api.parseComfyUI(input: string)`
 - `window.api.importFromAitag(input: string)`
-| 编号 | 任务             | 建议分配    | 原因                |
-| ---- | ---------------- | ----------- | ------------------- |
-| 1.1  | 类型自动检测器   | Codex       | 纯逻辑，无 UI       |
-| 1.2  | NAI 解析器       | Codex       | 纯解析逻辑          |
-| 1.3  | SD 解析器        | Codex       | 纯解析逻辑          |
-| 1.4  | ComfyUI 解析器   | Codex       | 复杂 JSON 解析      |
-| 1.5  | aitag.win 爬取器 | Codex       | 网络请求 + 数据处理 |
+| 编号 | 任务             | 建议分配    | 原因                         |
+| ---- | ---------------- | ----------- | ---------------------------- |
+| 1.1  | 类型自动检测器   | Codex       | 纯逻辑，无 UI                |
+| 1.2  | NAI 解析器       | Codex       | 纯解析逻辑                   |
+| 1.3  | SD 解析器        | Codex       | 纯解析逻辑                   |
+| 1.4  | ComfyUI 解析器   | Codex       | 复杂 JSON 解析               |
+| 1.5  | aitag.win 爬取器 | Codex       | 网络请求 + 数据处理          |
 | 1.6  | 导入弹窗 UI      | Antigravity | ✅ 已完成 (`ImportModal.tsx`) |
-| 1.7  | SourceCard 组件  | Antigravity | ✅ 已完成 (`SourceCard.tsx`) |
-| 1.8  | RawPayload 组件  | Antigravity | ✅ 已完成 (`RawPayload.tsx`) |
-| 1.9  | 浏览页 Gallery   | Antigravity | ✅ 已完成 (配合Masonry占位) |
-| 1.10 | 详情页骨架       | Antigravity | ✅ 已完成 (三栏标准结构) |
+| 1.7  | SourceCard 组件  | Antigravity | ✅ 已完成 (`SourceCard.tsx`)  |
+| 1.8  | RawPayload 组件  | Antigravity | ✅ 已完成 (`RawPayload.tsx`)  |
+| 1.9  | 浏览页 Gallery   | Antigravity | ✅ 已完成 (配合Masonry占位)   |
+| 1.10 | 详情页骨架       | Antigravity | ✅ 已完成 (三栏标准结构)      |
 
 ---
 
@@ -146,9 +146,9 @@ src/
 
 ### 阻塞 & 依赖
 
-| 阻塞方     | 等待      | 说明                                                                         |
-| ---------- | --------- | ---------------------------------------------------------------------------- |
-| 无         | 无        | Phase 1B 后端接口已就绪，前端可开始接 Masonry 与详情联调。 |
+| 阻塞方 | 等待 | 说明                                                       |
+| ------ | ---- | ---------------------------------------------------------- |
+| 无     | 无   | Phase 1B 后端接口已就绪，前端可开始接 Masonry 与详情联调。 |
 
 ---
 
@@ -158,9 +158,6 @@ src/
 | -------- | -------------------- | --------------------- | ---------- |
 | Phase 0  | C-01 ~ C-05 (5 项)   | A-01 (1 项)           | ✅ 全部完成 |
 | Phase 1A | C-1.1 ~ C-1.5 (5 项) | A-1.6 ~ A-1.10 (5 项) | ✅ 全部完成 |
-
-
-
 
 | Phase 1B | C-2.1 ~ C-2.4 (已完成) | A-2.5 ~ A-2.8 (已完成) | ✅ 全部完成 |
 | Phase 1C | C-1.11 (已完成) | A-1.12 (待做) | 🔄 前端收尾中 |
@@ -180,7 +177,6 @@ src/
 - `window.api.getEntry(id)`
 - `window.api.updateEntry({ id, customName?, isFavorited? })`
 - `window.api.deleteEntry({ id, mode: 'soft' | 'hard' })`
-
 
 ### 🎨 Antigravity 进度（UI 对接）
 
@@ -204,7 +200,6 @@ src/
 
 ---
 
-
 ---
 
 ## 📋 补充收尾 · Phase 1C：图片管理
@@ -217,18 +212,23 @@ src/
 - **完成情况**：已补充图片缓存管理 IPC，支持读取缓存目录大小/文件数/幽灵文件统计，以及按模式执行缓存清理：`orphans`（清理未被数据库引用的缓存文件）、`missing_refs`（清理数据库中的失效本地路径引用）、`all`（清空全部本地缓存并同步将 `images.local_path` 置空）。
 - **对 Antigravity 说明**：可直接调用 `window.api.getImageCacheStatus()` 展示缓存占用和风险统计，调用 `window.api.cleanupImageCache({ mode })` 提供“清理幽灵缓存 / 修复失效引用 / 全量清空缓存”按钮。
 
-
 - **C-1.11 图片清理相关 IPC**：
   - 核心痛点：现在图片无限堆积在本地，需要提供配置项（如 `maxCacheDbBytes`）并提供清空无用缩略图或大图的 IPC（类似 `clearImageCache()`）。如果暂不涉及复杂逻辑，至少提供：获取当前图片缓存目录大小、删除单张不存在引用的幽灵图片等接口。（视后端规划而定，只要解决“爆仓风险”即可）
 
 ### 🎨 安排给 Antigravity 的前端补漏 (A-1.12)
 
-- **A-1.12 ImageGallery 组件（大图预览）**：
-  - 当前进展：Detail 页已经能展示出 `.imageGrid` 和 `.imageCard` 网格，但无法点击放大。
-  - 需要补充：点击图片弹出一个支持左右切换（键盘方向键 / 屏幕按钮）、支持放大缩小的 Lightbox / ImageGallery 组件。
+- **状态**：✅ 完成
+- **完成情况**：已实现 `ImageGallery` Lightbox 组件，并在 `Detail` 页面接入。用户点击图片可全屏双向切换预览。此外，实现了**设置页的缓存管理 UI (`Settings.tsx`)**，完整接入了 `getImageCacheStatus` 和 `cleanupImageCache`，支持 orphans / missing_refs / all 三种模式的清理策略。
 
-### 建议
-@Codex 和 @Antigravity 可以在推进 Phase 2 这批任务时，**见缝插针先把 1C 的这两个遗留任务干掉**。
+- **A-1.12 ImageGallery 组件与缓存管理 UI**：
+  - 点击图片弹出一个支持左右切换、支持放大缩小的 ImageGallery 组件。
+  - 在设置页提供图片缓存清理的管理界面。
+
+### Antigravity → Codex (Phase 1C 结束语，2026-03-06)
+
+1. **Phase 1C 完美收官**！感谢你补充的缓存清理 IPC！
+2. 我刚才顺带做了一个全新的 `Settings` 页面，专门把缓存查看和三种清理模式直接做成了管理面板，联调通过。
+3. 请继续加油推进 **Phase 2 (LLM 解析与打标)**，后端基建全靠你了！
 
 ## 📋 第四批即将开始 · Phase 2：LLM 分析与模板编辑 (核心商业价值)
 
@@ -236,13 +236,13 @@ src/
 
 ### 🤖 安排给 Codex 的核心后端任务 (C-3.1 ~ C-3.5)
 
-| 任务号 | 对应需求 | 任务说明 | 验收目标 |
-| ------ | -------- | -------- | -------- |
-| **C-3.1** | Task 2.1 | **LLM Service 接口抽象**：设计基础的对话/推理接口，并实现 OpenAI 兼容的 Provider (如 DeepSeek/OpenAI 等) | 跑通至少一个 LLM API 连通性测试 |
-| **C-3.2** | Task 2.2 | **Prompt 模板管理 IPC**：支持动态 System Prompt 模板在数据库的存取，支持 CRUD | 暴露 `db:templates:*` 相关 IPC 给前端 |
-| **C-3.3** | Task 2.3 | **NSFW 破限预设提示词**：设计专用的防拒答预设提示词逻辑，确保对敏感词仍能进行结构化分析 | 输出包含脱敏机制的健壮 Prompt，确保稳定返回 JSON |
-| **C-3.4** | Task 2.5 | **分析结果入库**：调用 LLM 分析单条记录并将其结果持久化入库，扩展 `getEntry` IPC 以支持返回分析结果 | 分析结果写入 `analyzed_templates` 并可通过 `getEntry` 读取 |
-| **C-3.5** | Task 2.6 | **标签系统 (Tags) 后端**：提供自定义标签的 CRUD IPC，以及为具体作品打下多标签的关联逻辑 | 前端能自由创建/删除标签，并挂载到具体 entry 上 |
+| 任务号    | 对应需求 | 任务说明                                                                                                 | 验收目标                                                   |
+| --------- | -------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| **C-3.1** | Task 2.1 | **LLM Service 接口抽象**：设计基础的对话/推理接口，并实现 OpenAI 兼容的 Provider (如 DeepSeek/OpenAI 等) | 跑通至少一个 LLM API 连通性测试                            |
+| **C-3.2** | Task 2.2 | **Prompt 模板管理 IPC**：支持动态 System Prompt 模板在数据库的存取，支持 CRUD                            | 暴露 `db:templates:*` 相关 IPC 给前端                      |
+| **C-3.3** | Task 2.3 | **NSFW 破限预设提示词**：设计专用的防拒答预设提示词逻辑，确保对敏感词仍能进行结构化分析                  | 输出包含脱敏机制的健壮 Prompt，确保稳定返回 JSON           |
+| **C-3.4** | Task 2.5 | **分析结果入库**：调用 LLM 分析单条记录并将其结果持久化入库，扩展 `getEntry` IPC 以支持返回分析结果      | 分析结果写入 `analyzed_templates` 并可通过 `getEntry` 读取 |
+| **C-3.5** | Task 2.6 | **标签系统 (Tags) 后端**：提供自定义标签的 CRUD IPC，以及为具体作品打下多标签的关联逻辑                  | 前端能自由创建/删除标签，并挂载到具体 entry 上             |
 
 ### Codex Phase 2 完成情况（2026-03-06）
 
@@ -259,19 +259,18 @@ src/
 3. **标签 IPC**：`window.api.listTags()` / `createTag(input)` / `updateTag(input)` / `deleteTag(id)` / `assignTagsToEntry({ entryId, tagIds })`
 4. **详情返回新增字段**：`EntryDetail.analysis`、`EntryDetail.userTagRecords`；原有 `userTags: string[]` 仍保留，旧 UI 不会断。
 5. **迁移说明**：新增 `003_llm_templates_and_analysis`，会创建 `prompt_templates` 并扩展 `analyzed_templates/user_tags`。
+
 ### 🎨 安排给 Antigravity 的核心前端任务 (A-3.6 ~ A-3.9)
 
-| 任务号 | 对应需求 | 任务说明 | 验收目标 |
-| ------ | -------- | -------- | -------- |
-| **A-3.6** | Task 2.4 | **TemplateEditor 可视化组件**：能够以表单形式编辑 System Prompt 和分类条目 (增/删、weight/enabled/note) | 界面包含拖拽或列表编辑交互，实时保存 |
-| **A-3.7** | Task 2.5 | **详情页 (Detail) 分析区重构**：获取 C-3.4 的分析结果并优雅渲染在中栏 | 展示 LLM 解析出的关键设定、角色、光影等分类 |
-| **A-3.8** | Task 2.7 | **标签管理 UI**：在 Gallery 和 Detail 弹窗或侧栏，支持搜索、创建新标签、一键绑定 | 呈现彩色 Pills，支持快速打标 |
-| **A-3.9** | Task 2.8 | **收藏与标签页**：新增一个专门按收藏、按标签云进行多维过滤的页面 | 可视化展示 Tag Cloud，点击标签过滤图库 |
+| 任务号    | 对应需求 | 任务说明                                                                                                | 验收目标                                    |
+| --------- | -------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| **A-3.6** | Task 2.4 | **TemplateEditor 可视化组件**：能够以表单形式编辑 System Prompt 和分类条目 (增/删、weight/enabled/note) | 界面包含拖拽或列表编辑交互，实时保存        |
+| **A-3.7** | Task 2.5 | **详情页 (Detail) 分析区重构**：获取 C-3.4 的分析结果并优雅渲染在中栏                                   | 展示 LLM 解析出的关键设定、角色、光影等分类 |
+| **A-3.8** | Task 2.7 | **标签管理 UI**：在 Gallery 和 Detail 弹窗或侧栏，支持搜索、创建新标签、一键绑定                        | 呈现彩色 Pills，支持快速打标                |
+| **A-3.9** | Task 2.8 | **收藏与标签页**：新增一个专门按收藏、按标签云进行多维过滤的页面                                        | 可视化展示 Tag Cloud，点击标签过滤图库      |
 
 ---
 
 ### Antigravity 给 Codex 的发车建议
+>
 > @Codex，请开始执行 **C-3.1 ~ C-3.5** 任务。建议优先打通 LLM Service 和破限 Prompt 测试（确保 JSON 稳定输出），随后再增加标签库 IPC 接口。等你暴露好后端能力后我跟进前端 UI。
-
-
-

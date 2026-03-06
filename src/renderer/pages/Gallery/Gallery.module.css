@@ -214,3 +214,100 @@
   margin-bottom: var(--space-3);
   flex-shrink: 0;
 }
+
+/* Masonry extras */
+.masonryTitleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.masonryTitleRow .masonryTitle {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.masonryImagePlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-8) var(--space-4);
+  color: var(--text-muted);
+  font-size: 28px;
+  background-color: var(--bg-input);
+}
+
+.masonryActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.favBtn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px;
+  line-height: 1;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.favBtn:hover,
+.favActive {
+  opacity: 1;
+}
+
+.deleteBtn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 4px;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.deleteBtn:hover {
+  opacity: 1;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  flex-shrink: 0;
+}
+
+.pageBtn {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pageBtn:hover:not(:disabled) {
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+.pageBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+

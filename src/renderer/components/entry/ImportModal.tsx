@@ -6,7 +6,7 @@ type TabType = 'url' | 'paste' | 'file'
 interface ImportModalProps {
   isOpen: boolean
   onClose: () => void
-  onSuccess: (entryId: string) => void
+  onSuccess: (entryId?: string) => void
 }
 
 export function ImportModal({ isOpen, onClose, onSuccess }: ImportModalProps) {

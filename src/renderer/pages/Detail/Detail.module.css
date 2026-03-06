@@ -73,3 +73,109 @@
 .btnPrimary:hover {
   background-color: var(--accent-blue-hover);
 }
+
+.btnSecondary {
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnSecondary:hover {
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+.btnDanger {
+  background-color: transparent;
+  border: 1px solid var(--status-error);
+  color: var(--status-error);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnDanger:hover {
+  background-color: rgba(218, 54, 51, 0.1);
+}
+
+/* Image grid */
+.imageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-4);
+  flex: 1;
+  overflow-y: auto;
+}
+
+.imageCard {
+  position: relative;
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.imagePreview {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  max-height: 400px;
+}
+
+.imagePlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.imageIndex {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+
+/* Tags & Loras */
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.tagPill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background-color: rgba(31, 111, 235, 0.15);
+  color: var(--accent-blue);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.loraPill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background-color: rgba(255, 165, 0, 0.15);
+  color: var(--badge-comfy);
+  font-size: 11px;
+  font-weight: 500;
+  font-family: var(--font-mono);
+}
+

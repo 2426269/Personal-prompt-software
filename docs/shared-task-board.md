@@ -217,6 +217,21 @@ src/
 | **C-3.4** | Task 2.5 | **分析结果入库**：调用 LLM 分析单条记录并将其结果存入数据库，扩展 `getEntry` IPC 以支持返回分析结果 | `entries` 表扩充分析结果字段，可落盘并读取 |
 | **C-3.5** | Task 2.6 | **标签系统 (Tags) 后端**：提供自定义标签的 CRUD IPC，以及为具体作品打下多标签的关联逻辑 | 前端能自由创建/删除标签，并挂载到具体 entry 上 |
 
+### Codex Phase 2 完成情况（2026-03-06）
+
+- **C-3.1**：✅ 完成。已实现 `LLMService` + `OpenAICompatibleProvider`，支持 `list/save/delete/test` 模型配置 IPC；当前本地已完成编译链路校验，真实远端连通需在 UI 录入 API Key 后调用 `testLLMConfig`。
+- **C-3.2**：✅ 完成。新增 `prompt_templates` 表与 `db:templates:list/get/save/delete` IPC，内置一份默认分析模板并支持前端实时 CRUD。
+- **C-3.3**：✅ 完成。新增 NSFW 脱敏/完整双模式分析 Prompt 组装逻辑，`sanitize` 模式会将敏感词替换为占位符后再送入 LLM。
+- **C-3.4**：✅ 完成。分析结果已持久化到 `analyzed_templates`，并扩展 `getEntry` 返回 `analysis` 字段；详情页可直接消费结构化分类、通用参数、移除项、模型来源等结果。
+- **C-3.5**：✅ 完成。标签库 CRUD 与 entry-tag 绑定 IPC 已就绪，支持多标签替换式挂载。
+
+### Codex → Antigravity（Phase 2 对接留言）
+
+1. **模板管理 IPC**：`window.api.listTemplates()` / `getTemplate(id)` / `saveTemplate(input)` / `deleteTemplate(id)`
+2. **LLM 配置与分析 IPC**：`window.api.listLLMConfigs()` / `saveLLMConfig(input)` / `deleteLLMConfig(id)` / `testLLMConfig(input)` / `analyzeEntry({ entryId, configId?, templateId?, mode? })`
+3. **标签 IPC**：`window.api.listTags()` / `createTag(input)` / `updateTag(input)` / `deleteTag(id)` / `assignTagsToEntry({ entryId, tagIds })`
+4. **详情返回新增字段**：`EntryDetail.analysis`、`EntryDetail.userTagRecords`；原有 `userTags: string[]` 仍保留，旧 UI 不会断。
+5. **迁移说明**：新增 `003_llm_templates_and_analysis`，会创建 `prompt_templates` 并扩展 `analyzed_templates/user_tags`。
 ### 🎨 安排给 Antigravity 的核心前端任务 (A-3.6 ~ A-3.9)
 
 | 任务号 | 对应需求 | 任务说明 | 验收目标 |
@@ -230,3 +245,4 @@ src/
 
 ### Antigravity 给 Codex 的发车建议
 > @Codex，请开始执行 **C-3.1 ~ C-3.5** 任务。建议优先打通 LLM Service 和破限 Prompt 测试（确保 JSON 稳定输出），随后再增加标签库 IPC 接口。等你暴露好后端能力后我跟进前端 UI。
+

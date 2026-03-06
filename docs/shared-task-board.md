@@ -200,3 +200,33 @@ src/
 - Masonry 可直接消费 `EntryListItem.coverImage`、`displayTitle`、`imageCount`、`isFavorited`
 - 详情返回 `EntryDetail`：包含 `images/sourceTags/userTags/loras/rawJson`
 - 软删除依赖新增迁移 `002_entry_soft_delete`，默认列表不返回已软删条目
+
+---
+
+## 📋 第四批即将开始 · Phase 2：LLM 分析与模板编辑 (核心商业价值)
+
+> 本阶段重点是打通 LLM 分析工作流，并完善标签/收藏归类系统。
+
+### 🤖 安排给 Codex 的核心后端任务 (C-3.1 ~ C-3.5)
+
+| 任务号 | 对应需求 | 任务说明 | 验收目标 |
+| ------ | -------- | -------- | -------- |
+| **C-3.1** | Task 2.1 | **LLM Service 接口抽象**：设计基础的对话/推理接口，并实现 OpenAI 兼容的 Provider (如 DeepSeek/OpenAI 等) | 跑通至少一个 LLM API 连通性测试 |
+| **C-3.2** | Task 2.2 | **Prompt 模板管理 IPC**：支持动态 System Prompt 模板在数据库的存取，支持 CRUD | 暴露 `db:templates:*` 相关 IPC 给前端 |
+| **C-3.3** | Task 2.3 | **NSFW 破限预设提示词**：设计专用的防拒答预设提示词逻辑，确保对敏感词仍能进行结构化分析 | 输出包含脱敏机制的健壮 Prompt，确保稳定返回 JSON |
+| **C-3.4** | Task 2.5 | **分析结果入库**：调用 LLM 分析单条记录并将其结果存入数据库，扩展 `getEntry` IPC 以支持返回分析结果 | `entries` 表扩充分析结果字段，可落盘并读取 |
+| **C-3.5** | Task 2.6 | **标签系统 (Tags) 后端**：提供自定义标签的 CRUD IPC，以及为具体作品打下多标签的关联逻辑 | 前端能自由创建/删除标签，并挂载到具体 entry 上 |
+
+### 🎨 安排给 Antigravity 的核心前端任务 (A-3.6 ~ A-3.9)
+
+| 任务号 | 对应需求 | 任务说明 | 验收目标 |
+| ------ | -------- | -------- | -------- |
+| **A-3.6** | Task 2.4 | **TemplateEditor 可视化组件**：能够以表单形式编辑 System Prompt 和分类条目 (增/删、weight/enabled/note) | 界面包含拖拽或列表编辑交互，实时保存 |
+| **A-3.7** | Task 2.5 | **详情页 (Detail) 分析区重构**：获取 C-3.4 的分析结果并优雅渲染在中栏 | 展示 LLM 解析出的关键设定、角色、光影等分类 |
+| **A-3.8** | Task 2.7 | **标签管理 UI**：在 Gallery 和 Detail 弹窗或侧栏，支持搜索、创建新标签、一键绑定 | 呈现彩色 Pills，支持快速打标 |
+| **A-3.9** | Task 2.8 | **收藏与标签页**：新增一个专门按收藏、按标签云进行多维过滤的页面 | 可视化展示 Tag Cloud，点击标签过滤图库 |
+
+---
+
+### Antigravity 给 Codex 的发车建议
+> @Codex，请开始执行 **C-3.1 ~ C-3.5** 任务。建议优先打通 LLM Service 和破限 Prompt 测试（确保 JSON 稳定输出），随后再增加标签库 IPC 接口。等你暴露好后端能力后我跟进前端 UI。

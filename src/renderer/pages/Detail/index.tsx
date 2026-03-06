@@ -1,3 +1,4 @@
+import { ImageGallery } from '@renderer/components/entry/ImageGallery'
 import type { EntryDetail } from '@shared/types/entry'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -13,6 +14,7 @@ export function Detail() {
   const [entry, setEntry] = useState<EntryDetail | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+  const [galleryIndex, setGalleryIndex] = useState<number | null>(null)
 
   const fetchEntry = useCallback(async () => {
     if (!id) return
@@ -199,7 +201,12 @@ export function Detail() {
         {entry.images.length > 0 ? (
           <div className={styles.imageGrid}>
             {entry.images.map((img, idx) => (
-              <div key={img.index} className={styles.imageCard}>
+              <div
+                key={img.index}
+                className={styles.imageCard}
+                onClick={() => setGalleryIndex(idx)}
+                style={{ cursor: 'pointer' }}
+              >
                 {img.localPath ? (
                   <img
                     src={`file://${img.localPath}`}
@@ -250,6 +257,15 @@ export function Detail() {
           </div>
         </div>
       </aside>
+
+      {/* Image Gallery Lightbox */}
+      {galleryIndex !== null && entry.images.length > 0 && (
+        <ImageGallery
+          images={entry.images}
+          initialIndex={galleryIndex}
+          onClose={() => setGalleryIndex(null)}
+        />
+      )}
     </div>
   )
 }

@@ -126,9 +126,10 @@ export function Detail() {
     )
   }
 
-  // Extract first image prompt text for display
-  const firstImage = entry.images[0]
-  const promptText = firstImage?.promptText ?? ''
+  // Determine if all images share the same prompt (to avoid repetition)
+  const allPrompts = entry.images.map((img) => img.promptText || '').filter(Boolean)
+  const uniquePrompts = [...new Set(allPrompts)]
+  const hasSharedPrompt = uniquePrompts.length === 1 && entry.images.length > 1
 
   return (
     <div className={styles.detailPage}>
@@ -154,19 +155,20 @@ export function Detail() {
           sourceUrl={entry.sourceUrl}
         />
 
-        {promptText && (
+        {/* Shared prompt (shown only if ALL images have the same prompt) */}
+        {hasSharedPrompt && (
           <div>
-            <h3 className={styles.sectionTitle}>提示词 (Prompt)</h3>
+            <h3 className={styles.sectionTitle}>🔗 公共提示词（{entry.images.length} 张图共用）</h3>
             <div
               className={styles.card}
               style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}
             >
-              {promptText}
+              {uniquePrompts[0]}
             </div>
             <button
               className={styles.btnSecondary}
               style={{ marginTop: '8px' }}
-              onClick={() => handleCopyPrompt(promptText)}
+              onClick={() => handleCopyPrompt(uniquePrompts[0])}
             >
               📋 复制提示词
             </button>
@@ -223,37 +225,68 @@ export function Detail() {
         </div>
       </aside>
 
-      {/* Center: Image Gallery */}
+      {/* Center: Image Gallery with Per-Image Prompts */}
       <main className={styles.workspace}>
         <h2 style={{ marginTop: 0 }}>{entry.displayTitle}</h2>
         {entry.images.length > 0 ? (
-          <div className={styles.imageGrid}>
-            {entry.images.map((img, idx) => (
-              <div
-                key={img.index}
-                className={styles.imageCard}
-                onClick={() => setGalleryIndex(idx)}
-                style={{ cursor: 'pointer' }}
-              >
-                {img.localPath ? (
-                  <img
-                    src={`file://${img.localPath}`}
-                    alt={`Image ${idx + 1}`}
-                    className={styles.imagePreview}
-                  />
-                ) : img.originalUrl ? (
-                  <img
-                    src={img.originalUrl}
-                    alt={`Image ${idx + 1}`}
-                    className={styles.imagePreview}
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className={styles.imagePlaceholder}>🖼️ 图片 {idx + 1}</div>
-                )}
-                <div className={styles.imageIndex}>#{img.index}</div>
-              </div>
-            ))}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            {entry.images.map((img, idx) => {
+              const imgSrc = img.localPath
+                ? `file://${img.localPath}`
+                : img.originalUrl
+              const imgPrompt = img.promptText || ''
+
+              return (
+                <div key={img.index} className={styles.card} style={{ padding: 0, overflow: 'hidden' }}>
+                  {/* Image */}
+                  <div
+                    onClick={() => setGalleryIndex(idx)}
+                    style={{ cursor: 'pointer', position: 'relative' }}
+                  >
+                    {imgSrc ? (
+                      <img
+                        src={imgSrc}
+                        alt={`Image ${idx + 1}`}
+                        style={{ width: '100%', maxHeight: '500px', objectFit: 'contain', display: 'block', background: 'var(--bg-input)' }}
+                      />
+                    ) : (
+                      <div className={styles.imagePlaceholder}>🖼️ 图片 {idx + 1}</div>
+                    )}
+                    <div className={styles.imageIndex}>#{img.index + 1}</div>
+                  </div>
+
+                  {/* Per-image prompt (only if prompts differ OR single image) */}
+                  {imgPrompt && !hasSharedPrompt && (
+                    <div style={{ padding: 'var(--space-3)', borderTop: '1px solid var(--border-default)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
+                        <span style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 500 }}>
+                          📝 图 #{img.index + 1} 提示词
+                        </span>
+                        <button
+                          className={styles.btnSecondary}
+                          style={{ fontSize: '11px', padding: '2px 8px' }}
+                          onClick={() => handleCopyPrompt(imgPrompt)}
+                        >
+                          📋 复制
+                        </button>
+                      </div>
+                      <div style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '11px',
+                        lineHeight: 1.5,
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-all',
+                        color: 'var(--text-secondary)',
+                        maxHeight: '200px',
+                        overflowY: 'auto',
+                      }}>
+                        {imgPrompt}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
         ) : (
           <div className={styles.card} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', borderStyle: 'dashed', backgroundColor: 'transparent' }}>

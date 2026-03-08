@@ -88,6 +88,7 @@ export interface AitagImage {
   originalUrl: string
   localPath: string | null
 }
+// Force TS Language Server to refresh
 
 export interface AitagWorkInfo {
   pixivId: string

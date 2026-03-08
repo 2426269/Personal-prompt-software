@@ -1,13 +1,13 @@
 ﻿import type {
-    EntryDeleteInput,
-    EntryDeleteResult,
-    EntryDetail,
-    EntryListItem,
-    EntryListParams,
-    EntryListResult,
-    EntryUpdateInput,
+  EntryDeleteInput,
+  EntryDeleteResult,
+  EntryDetail,
+  EntryListItem,
+  EntryListParams,
+  EntryListResult,
+  EntryUpdateInput,
 } from '@shared/types/entry'
-import type { PromptTag } from '@shared/types/importer'
+import type { AitagImage, PromptTag } from '@shared/types/importer'
 
 import { EntriesRepository, type EntryDetailRow, type EntryListRow } from '../../db/repositories/entries.repo'
 import { ImagesRepository } from '../../db/repositories/images.repo'
@@ -61,12 +61,12 @@ function isPromptTagPayload(value: unknown): value is { text: string; weight?: n
 
 export class EntriesService {
   constructor(
-    private readonly entriesRepository = new EntriesRepository(),
-    private readonly imagesRepository = new ImagesRepository(),
-    private readonly tagsService = new TagsService(),
-    private readonly llmService = new LLMService(),
-    private readonly sdParser = new SDParser(),
-    private readonly comfyuiParser = new ComfyUIParser(),
+    private readonly entriesRepository: EntriesRepository = new EntriesRepository(),
+    private readonly imagesRepository: ImagesRepository = new ImagesRepository(),
+    private readonly tagsService: TagsService = new TagsService(),
+    private readonly llmService: LLMService = new LLMService(),
+    private readonly sdParser: SDParser = new SDParser(),
+    private readonly comfyuiParser: ComfyUIParser = new ComfyUIParser(),
   ) {}
 
   list(params: EntryListParams): EntryListResult {
@@ -96,7 +96,8 @@ export class EntriesService {
       return null
     }
 
-    const images = this.imagesRepository.listByEntryId(id)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+    const images: AitagImage[] = this.imagesRepository.listByEntryId(id)
     const userTagRecords = this.tagsService.getByEntryId(id)
     const analysis = this.llmService.getAnalysisForEntry(id)
 
@@ -179,7 +180,7 @@ export class EntriesService {
     }
   }
 
-  private extractLoras(row: EntryDetailRow, images: ReturnType<ImagesRepository['listByEntryId']>): PromptTag[] {
+  private extractLoras(row: EntryDetailRow, images: AitagImage[]): PromptTag[] {
     const rawPayload = this.safeParseJson(row.raw_json)
 
     if (row.type === 'SD') {
@@ -189,7 +190,7 @@ export class EntriesService {
       }
 
       return dedupeLoras(
-        images.flatMap((image) => {
+        images.flatMap((image: AitagImage) => {
           try {
             return this.sdParser.parse(image.aiJson || image.promptText).loras
           } catch {
@@ -206,7 +207,7 @@ export class EntriesService {
       }
 
       return dedupeLoras(
-        images.flatMap((image) => {
+        images.flatMap((image: AitagImage) => {
           try {
             return this.comfyuiParser.parse(image.aiJson || image.promptText).loras
           } catch {

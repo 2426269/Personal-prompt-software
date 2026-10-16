@@ -1,9 +1,8 @@
 {
-  "generated_at": "2026-10-16T09:10:54.436Z",
+  "generated_at": "2026-10-16T09:16:16.313Z",
   "kind": "public-source-snapshot",
   "owner": "2426269",
   "source_head": "12f4d143a5734e19501af47ba005633c5ca18680",
-  "scope": "Selected working-tree source, documents and samples; no private runtime data or stable release guarantee",
   "files": [
     {
       "path": ".gitignore",
@@ -19,6 +18,26 @@
       "path": ".prettierrc.json",
       "bytes": 94,
       "sha256": "0e5edfae63ead57881e560d2c462db2994c8e08fb7eb28b19dcb033f8390e0c1"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2724,
+      "sha256": "32412cf508efaa7cf14de482f286f04559058d0e4255e17401e3d46dbadb30eb"
+    },
+    {
+      "path": "UI原型/1_图库浏览页.png",
+      "bytes": 576394,
+      "sha256": "0671be7e35605ca0b7ddd666f5de839a08452c50328ba1c504fc220cedcce488"
+    },
+    {
+      "path": "UI原型/2_提示词集页.png",
+      "bytes": 531972,
+      "sha256": "42b6b4f2f7a939de17851c5e0a9878eb543c1a17a894e5878847518504a98344"
+    },
+    {
+      "path": "UI原型/3_作品详情页.png",
+      "bytes": 466144,
+      "sha256": "3f0f957eebc2e35b994542075ac652790f16a1b7dfdc820803305a09aab50aaf"
     },
     {
       "path": "data/cache/.gitkeep",
@@ -174,11 +193,6 @@
       "path": "package.json",
       "bytes": 2285,
       "sha256": "0a12b5e202bbc372a853a49830952edc6f1be2b3cc86f17cc0018a2fa14d272b"
-    },
-    {
-      "path": "README.md",
-      "bytes": 2724,
-      "sha256": "32412cf508efaa7cf14de482f286f04559058d0e4255e17401e3d46dbadb30eb"
     },
     {
       "path": "resources/.gitkeep",
@@ -776,11 +790,6 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "path": "src/renderer/components/layout/index.ts",
-      "bytes": 29,
-      "sha256": "44ee4bee7733122d8e8ba4180744edd9c12e6aafeb5d9ce24b48a1b58b0f960d"
-    },
-    {
       "path": "src/renderer/components/layout/Layout.module.css",
       "bytes": 1470,
       "sha256": "a2a75285a30fbdf09d8e5ec0fc8bcaff65813e531397adbdb39e3d471c75a861"
@@ -789,6 +798,11 @@
       "path": "src/renderer/components/layout/Layout.tsx",
       "bytes": 1502,
       "sha256": "448a227a2c1389bd94063c450aa58d9e4df8feeb74e1d3f8cc3dbd4f66c01076"
+    },
+    {
+      "path": "src/renderer/components/layout/index.ts",
+      "bytes": 29,
+      "sha256": "44ee4bee7733122d8e8ba4180744edd9c12e6aafeb5d9ce24b48a1b58b0f960d"
     },
     {
       "path": "src/renderer/components/preset/ExportPresetModal.module.css",
@@ -891,19 +905,14 @@
       "sha256": "2d32861b4863fdf45f92b7fcaa2971a39bc6f93b69f8c96ee64be51d80b4f921"
     },
     {
-      "path": "src/renderer/pages/Logs/index.tsx",
-      "bytes": 11317,
-      "sha256": "eae40cb5f0b036639261d06cd5f7aba153ac6b938f416d1f49c6405ff131fee8"
-    },
-    {
       "path": "src/renderer/pages/Logs/Logs.module.css",
       "bytes": 3653,
       "sha256": "491d4cbcf4e18b8cbb0bf303e97d70574a0be8fcdfde1dad9fdeccfa9ecb5cd3"
     },
     {
-      "path": "src/renderer/pages/Settings/index.tsx",
-      "bytes": 53010,
-      "sha256": "8a9ea6dc8a61404b4177bb06eab3d10846d3f03e577c453eb6466914cd688961"
+      "path": "src/renderer/pages/Logs/index.tsx",
+      "bytes": 11317,
+      "sha256": "eae40cb5f0b036639261d06cd5f7aba153ac6b938f416d1f49c6405ff131fee8"
     },
     {
       "path": "src/renderer/pages/Settings/Settings.module.css",
@@ -911,9 +920,9 @@
       "sha256": "a103ae58b517b91600c918632208f028dbfb07e172708c1366727bbf0a99ddae"
     },
     {
-      "path": "src/renderer/pages/Spellbook/index.tsx",
-      "bytes": 15704,
-      "sha256": "6a3cec69042f8f958c7008f0f3fd8a03a2f33f83fa00021c302d4af2cd3f663e"
+      "path": "src/renderer/pages/Settings/index.tsx",
+      "bytes": 53010,
+      "sha256": "8a9ea6dc8a61404b4177bb06eab3d10846d3f03e577c453eb6466914cd688961"
     },
     {
       "path": "src/renderer/pages/Spellbook/Spellbook.module.css",
@@ -921,9 +930,9 @@
       "sha256": "d41d0016d9aaa83c7721e719e45d435bb2bc1488fa555b0c98844783091e483d"
     },
     {
-      "path": "src/renderer/pages/Testing/index.tsx",
-      "bytes": 60852,
-      "sha256": "1efd30614500573d1fe4ea9f7eab690b876f88725f36075d3d5aa89515896475"
+      "path": "src/renderer/pages/Spellbook/index.tsx",
+      "bytes": 15704,
+      "sha256": "6a3cec69042f8f958c7008f0f3fd8a03a2f33f83fa00021c302d4af2cd3f663e"
     },
     {
       "path": "src/renderer/pages/Testing/Testing.module.css",
@@ -931,14 +940,19 @@
       "sha256": "a223fcc222f5acb76bd241c8b6270f03f75e25f1709663a9cbc3d8ea93fde281"
     },
     {
-      "path": "src/renderer/pages/Workflows/index.tsx",
-      "bytes": 17233,
-      "sha256": "4577f3107ccbef970091de829828de126e8adb04b4556630c99062b24bd73326"
+      "path": "src/renderer/pages/Testing/index.tsx",
+      "bytes": 60852,
+      "sha256": "1efd30614500573d1fe4ea9f7eab690b876f88725f36075d3d5aa89515896475"
     },
     {
       "path": "src/renderer/pages/Workflows/Workflows.module.css",
       "bytes": 4056,
       "sha256": "c767335b7833bccbe2c9401cc4b721a21335911c91f6577d76a8640ec98d2e86"
+    },
+    {
+      "path": "src/renderer/pages/Workflows/index.tsx",
+      "bytes": 17233,
+      "sha256": "4577f3107ccbef970091de829828de126e8adb04b4556630c99062b24bd73326"
     },
     {
       "path": "src/renderer/router.tsx",
@@ -1106,31 +1120,17 @@
       "sha256": "5a8b4851385255df50fab7ecd3759dbd23b82e07a883b0fb8f7af152e4515255"
     },
     {
-      "path": "UI原型/1_图库浏览页.png",
-      "bytes": 576394,
-      "sha256": "0671be7e35605ca0b7ddd666f5de839a08452c50328ba1c504fc220cedcce488"
-    },
-    {
-      "path": "UI原型/2_提示词集页.png",
-      "bytes": 531972,
-      "sha256": "42b6b4f2f7a939de17851c5e0a9878eb543c1a17a894e5878847518504a98344"
-    },
-    {
-      "path": "UI原型/3_作品详情页.png",
-      "bytes": 466144,
-      "sha256": "3f0f957eebc2e35b994542075ac652790f16a1b7dfdc820803305a09aab50aaf"
-    },
-    {
       "path": "vite.config.ts",
       "bytes": 1819,
       "sha256": "f2489b8f4a78945413187e6793e470d4129b8c691edcc1a84aa333563db00ace"
     }
   ],
+  "scope": "source/documents/examples, not a stable release",
+  "validation": "Existing local working tree TypeScript typecheck passed; no fresh install or packaging",
   "exclusions": [
-    "credentials and sessions",
-    "private databases and user assets",
-    "node_modules/venvs/builds",
-    "third-party reference clones and archived binaries"
-  ],
-  "test_record": "See task delivery evidence; dependencies are not included"
+    "private runtime data and credentials",
+    "models and databases",
+    "dependencies and compiled binaries",
+    "third-party reference clones"
+  ]
 }

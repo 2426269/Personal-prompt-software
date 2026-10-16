@@ -1,10 +1,14 @@
 ﻿import fs from 'node:fs'
+import { createRequire } from 'node:module'
 import path from 'node:path'
 
-import BetterSqlite3, { type Database as SQLiteDatabase } from 'better-sqlite3'
+import type { Database as SQLiteDatabase } from 'better-sqlite3'
 import { app } from 'electron'
 
 import { runMigrations } from './migrations'
+
+const require = createRequire(import.meta.url)
+const BetterSqlite3 = require('better-sqlite3') as typeof import('better-sqlite3')
 
 let database: SQLiteDatabase | null = null
 

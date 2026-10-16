@@ -1,13 +1,17 @@
 import { APP_NAME } from '@shared/constants'
 import { NavLink, Outlet } from 'react-router-dom'
+
 import styles from './Layout.module.css'
 
 const NAV_ITEMS = [
   { path: '/', label: '图库浏览', icon: '🖼️' },
-  { path: '/collection', label: '提示词集', icon: '📝' },
+  { path: '/artists', label: '画师参考', icon: '🎨' },
+  { path: '/spellbook', label: '法典库', icon: '📚' },
+  { path: '/collection', label: '提示词预设', icon: '📝' },
   { path: '/favorites', label: '收藏', icon: '⭐' },
   { path: '/workflows', label: '工作流', icon: '🔧' },
   { path: '/testing', label: '测试', icon: '🚀' },
+  { path: '/logs', label: '日志', icon: '📋' },
   { path: '/settings', label: '设置', icon: '⚙️' },
 ]
 

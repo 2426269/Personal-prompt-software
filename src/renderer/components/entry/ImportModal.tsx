@@ -20,13 +20,17 @@ export function ImportModal({ isOpen, onClose, onSuccess }: ImportModalProps) {
 
   if (!isOpen) return null
 
-  const api = window.api
-
   const handleImport = async () => {
     setIsSubmitting(true)
     setErrorMsg('')
 
     try {
+      const api = window.api
+      if (!api) {
+        setErrorMsg('Electron 预加载桥接未加载，当前运行环境无法调用本地导入接口。请重新启动客户端。')
+        return
+      }
+
       if (activeTab === 'url') {
         const res = await api.importFromAitag(urlInput)
         if (res.success && res.data?.entryId) {

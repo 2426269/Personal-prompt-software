@@ -3,22 +3,58 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "main": "dist-electron/main/index.js",
+  "main": "dist-electron/index.js",
+  "author": "PromptForge",
+  "description": "AI 生图提示词管理与分析工具",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "clean": "node -e \"const fs=require('node:fs');['dist','dist-electron','dist-preload'].forEach((target)=>fs.rmSync(target,{ recursive:true, force:true }));\"",
+    "build": "npm run clean && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
     "format": "prettier --check .",
-    "format:write": "prettier --write ."
+    "format:write": "prettier --write .",
+    "pack:win": "npm run build && electron-builder --win --config --c.npmRebuild=false"
+  },
+  "build": {
+    "appId": "com.promptforge.app",
+    "productName": "PromptForge",
+    "directories": {
+      "output": "out-app"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "dist-preload/**/*"
+    ],
+    "win": {
+      "signAndEditExecutable": false,
+      "target": [
+        {
+          "target": "dir",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/better-sqlite3/**",
+      "node_modules/bindings/**",
+      "node_modules/ssh2/**",
+      "node_modules/asn1/**",
+      "node_modules/bcrypt-pbkdf/**"
+    ]
   },
   "dependencies": {
     "better-sqlite3": "^12.6.2",
     "exifreader": "^4.36.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.13.1"
+    "react-router-dom": "^7.13.1",
+    "ssh2": "^1.17.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
@@ -28,6 +64,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
     "electron": "^37.7.1",
+    "electron-builder": "^26.8.1",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.0.1",

@@ -9,6 +9,7 @@ import { PromptTypeDetector } from './auto-detect'
 import { ComfyUIParser } from './comfyui-parser'
 import { NAIParser } from './nai-parser'
 import { SDParser } from './sd-parser'
+import { WorkflowsService } from '../workflow/workflows.service'
 
 export class LocalImportService {
   constructor(
@@ -17,9 +18,13 @@ export class LocalImportService {
     private readonly sdParser = new SDParser(),
     private readonly comfyuiParser = new ComfyUIParser(),
     private readonly entriesRepository = new EntriesRepository(),
+    private readonly workflowsService = new WorkflowsService(),
   ) {}
 
-  async importFromText(text: string): Promise<{ entryId: string; type: PromptSourceType; parsed: unknown }> {
+  async importFromText(
+    text: string,
+    options?: { workflowJson?: string; runnableWorkflowJson?: string | null },
+  ): Promise<{ entryId: string; type: PromptSourceType; parsed: unknown }> {
     const detectResult = await Promise.resolve(this.detector.detect(text))
     let parsed: unknown
     let title = 'Local Text Import'
@@ -51,6 +56,15 @@ export class LocalImportService {
       rawJson: JSON.stringify(parsed),
     })
 
+    if (detectResult.type === 'ComfyUI') {
+      this.workflowsService.ensureWorkflowForEntry({
+        entryId,
+        name: `${title} Workflow`,
+        workflowJson: options?.workflowJson ?? text,
+        runnableWorkflowJson: options?.runnableWorkflowJson ?? null,
+      })
+    }
+
     return { entryId, type: detectResult.type, parsed }
   }
 
@@ -70,6 +84,10 @@ export class LocalImportService {
 
       if (comfyWorkflow || comfyPrompt) {
         text = comfyWorkflow ? comfyWorkflow : comfyPrompt
+        return this.importFromText(text, {
+          workflowJson: comfyWorkflow ?? text,
+          runnableWorkflowJson: comfyPrompt ?? null,
+        })
       } else if (parameters) {
         text = parameters
       } else {

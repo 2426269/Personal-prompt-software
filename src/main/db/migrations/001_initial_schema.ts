@@ -145,6 +145,9 @@ export const initialSchemaMigration: Migration = {
         api_key_encrypted BLOB,
         model_name TEXT NOT NULL,
         temperature REAL NOT NULL DEFAULT 0.3,
+        max_tokens INTEGER,
+        strict_json_mode INTEGER NOT NULL DEFAULT 1,
+        thinking_enabled INTEGER NOT NULL DEFAULT 0,
         is_default INTEGER NOT NULL DEFAULT 0 CHECK (is_default IN (0, 1)),
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP

@@ -1,17 +1,25 @@
-﻿import type { AitagImage, PromptSourceType, PromptTag } from './importer'
+﻿import type { AitagImage, PromptModelReference, PromptTag } from './importer'
 import type { EntryAnalysisResult } from './llm'
+import type { EntryRemoteModelCheck } from './remote'
 import type { UserTag } from './tag'
+import type { WorkflowBinding } from './workflow'
 
 export type EntrySortBy = 'created_at' | 'updated_at' | 'post_date' | 'bookmarks' | 'views'
 export type EntrySortOrder = 'asc' | 'desc'
 export type EntryDeleteMode = 'soft' | 'hard'
+export type EntryFilterType = 'all' | 'NAI' | 'SD' | 'ComfyUI'
+export type EntrySearchMode = 'basic' | 'metadata'
 
 export interface EntryListParams {
   page: number
   pageSize: number
   sortBy: EntrySortBy
   sortOrder: EntrySortOrder
+  type?: EntryFilterType
+  searchMode?: EntrySearchMode
+  searchQuery?: string
   includeDeleted?: boolean
+  favoritesOnly?: boolean
 }
 
 export interface EntryListItem {
@@ -23,7 +31,7 @@ export interface EntryListItem {
   customName: string | null
   displayTitle: string
   caption: string
-  type: Exclude<PromptSourceType, 'Unknown'>
+  type: 'NAI' | 'SD' | 'ComfyUI'
   sourceUrl: string | null
   postDate: string | null
   views: number
@@ -46,6 +54,13 @@ export interface EntryListResult {
   totalPages: number
 }
 
+export interface EntryImageDetail extends AitagImage {
+  parsedLoras: PromptTag[]
+  parsedCheckpoints: PromptModelReference[]
+  remoteLoraCheck: EntryRemoteModelCheck | null
+  remoteCheckpointCheck: EntryRemoteModelCheck | null
+}
+
 export interface EntryDetail {
   id: string
   pixivId: string | null
@@ -55,7 +70,7 @@ export interface EntryDetail {
   customName: string | null
   displayTitle: string
   caption: string
-  type: Exclude<PromptSourceType, 'Unknown'>
+  type: 'NAI' | 'SD' | 'ComfyUI'
   sourceUrl: string | null
   postDate: string | null
   views: number
@@ -65,9 +80,14 @@ export interface EntryDetail {
   userTags: string[]
   userTagRecords: UserTag[]
   loras: PromptTag[]
+  checkpoints: PromptModelReference[]
   rawJson: string
-  images: AitagImage[]
+  images: EntryImageDetail[]
   analysis: EntryAnalysisResult | null
+  analyses: EntryAnalysisResult[]
+  remoteLoraCheck: EntryRemoteModelCheck | null
+  remoteCheckpointCheck: EntryRemoteModelCheck | null
+  workflowBinding: WorkflowBinding | null
   deletedAt: string | null
   createdAt: string
   updatedAt: string

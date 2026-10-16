@@ -2,7 +2,14 @@
 
 import type { Database } from 'better-sqlite3'
 
-import type { EntryListParams, EntrySortBy, EntrySortOrder, EntryUpdateInput } from '@shared/types/entry'
+import type {
+  EntryFilterType,
+  EntryListParams,
+  EntrySearchMode,
+  EntrySortBy,
+  EntrySortOrder,
+  EntryUpdateInput,
+} from '@shared/types/entry'
 
 import { getDatabase } from '../database'
 
@@ -84,6 +91,79 @@ const SORT_COLUMN_MAP: Record<EntrySortBy, string> = {
 const SORT_ORDER_MAP: Record<EntrySortOrder, string> = {
   asc: 'ASC',
   desc: 'DESC',
+}
+
+const TYPE_COLUMN_MAP: Record<Exclude<EntryFilterType, 'all'>, string> = {
+  ComfyUI: 'ComfyUI',
+  NAI: 'NAI',
+  SD: 'SD',
+}
+
+function escapeLikePattern(value: string): string {
+  return value.replace(/[\\%_]/g, '\\$&')
+}
+
+function buildSearchClause(mode: EntrySearchMode): string {
+  if (mode === 'metadata') {
+    return `(
+      COALESCE(e.raw_json, '') LIKE @search ESCAPE '\\'
+      OR EXISTS (
+        SELECT 1
+        FROM images i
+        WHERE i.entry_id = e.id
+          AND (
+            COALESCE(i.prompt_text, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(i.ai_json, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(i.original_url, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(i.local_path, '') LIKE @search ESCAPE '\\'
+          )
+      )
+      OR EXISTS (
+        SELECT 1
+        FROM entry_workflow_binding ewb
+        LEFT JOIN workflows w_original ON w_original.id = ewb.original_workflow_id
+        LEFT JOIN workflows w_clean ON w_clean.id = ewb.clean_workflow_id
+        LEFT JOIN workflows w_test ON w_test.id = ewb.preferred_test_workflow_id
+        WHERE ewb.entry_id = e.id
+          AND (
+            COALESCE(w_original.name, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(w_original.notes, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(w_original.original_json, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(w_original.clean_json, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(w_original.api_prompt_json, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(w_original.slot_map_json, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(w_clean.name, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(w_clean.notes, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(w_clean.original_json, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(w_clean.clean_json, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(w_clean.api_prompt_json, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(w_clean.slot_map_json, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(w_test.name, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(w_test.notes, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(w_test.original_json, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(w_test.clean_json, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(w_test.api_prompt_json, '') LIKE @search ESCAPE '\\'
+            OR COALESCE(w_test.slot_map_json, '') LIKE @search ESCAPE '\\'
+          )
+      )
+    )`
+  }
+
+  return `(
+    COALESCE(e.title, '') LIKE @search ESCAPE '\\'
+    OR COALESCE(e.custom_name, '') LIKE @search ESCAPE '\\'
+    OR COALESCE(e.author_name, '') LIKE @search ESCAPE '\\'
+    OR COALESCE(e.author_id, '') LIKE @search ESCAPE '\\'
+    OR COALESCE(e.caption, '') LIKE @search ESCAPE '\\'
+    OR COALESCE(e.tags, '') LIKE @search ESCAPE '\\'
+    OR EXISTS (
+      SELECT 1
+      FROM entry_tags et
+      INNER JOIN user_tags ut ON ut.id = et.tag_id
+      WHERE et.entry_id = e.id
+        AND COALESCE(ut.name, '') LIKE @search ESCAPE '\\'
+    )
+  )`
 }
 
 export class EntriesRepository {
@@ -181,14 +261,35 @@ export class EntriesRepository {
     const sortColumn = SORT_COLUMN_MAP[params.sortBy] ?? SORT_COLUMN_MAP.created_at
     const sortOrder = SORT_ORDER_MAP[params.sortOrder] ?? SORT_ORDER_MAP.desc
     const includeDeleted = params.includeDeleted === true
-    const whereClause = includeDeleted ? '1=1' : 'e.deleted_at IS NULL'
+    const conditions: string[] = [includeDeleted ? '1=1' : 'e.deleted_at IS NULL']
+    const values: Record<string, string | number> = {
+      limit: pageSize,
+      offset,
+    }
 
-    const countStatement = this.db.prepare<[], { total: number }>(
+    if (params.type && params.type !== 'all') {
+      conditions.push('e.type = @entry_type')
+      values.entry_type = TYPE_COLUMN_MAP[params.type]
+    }
+
+    if (params.favoritesOnly === true) {
+      conditions.push('e.is_favorited = 1')
+    }
+
+    const normalizedQuery = params.searchQuery?.trim() ?? ''
+    if (normalizedQuery && params.searchMode) {
+      conditions.push(buildSearchClause(params.searchMode))
+      values.search = `%${escapeLikePattern(normalizedQuery)}%`
+    }
+
+    const whereClause = conditions.join(' AND ')
+
+    const countStatement = this.db.prepare<Record<string, string | number>, { total: number }>(
       `SELECT COUNT(*) AS total FROM entries e WHERE ${whereClause}`,
     )
-    const total = countStatement.get()?.total ?? 0
+    const total = countStatement.get(values)?.total ?? 0
 
-    const listStatement = this.db.prepare<[number, number], EntryListRow>(`
+    const listStatement = this.db.prepare<Record<string, string | number>, EntryListRow>(`
       SELECT
         e.id,
         e.pixiv_id,
@@ -231,11 +332,11 @@ export class EntriesRepository {
       FROM entries e
       WHERE ${whereClause}
       ORDER BY ${sortColumn} ${sortOrder}, e.created_at DESC
-      LIMIT ? OFFSET ?
+      LIMIT @limit OFFSET @offset
     `)
 
     return {
-      rows: listStatement.all(pageSize, offset),
+      rows: listStatement.all(values),
       total,
     }
   }

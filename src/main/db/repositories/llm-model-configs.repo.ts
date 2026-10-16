@@ -15,6 +15,9 @@ export interface LLMModelConfigRow {
   api_key_encrypted: Buffer | null
   model_name: string
   temperature: number
+  max_tokens: number | null
+  strict_json_mode: number
+  thinking_enabled: number
   is_default: number
   created_at: string
   updated_at: string
@@ -25,11 +28,11 @@ function encryptSecret(value: string | null | undefined): Buffer | null {
     return null
   }
 
-  if (safeStorage.isEncryptionAvailable()) {
-    return safeStorage.encryptString(value)
+  if (!safeStorage.isEncryptionAvailable()) {
+    throw new Error('当前系统安全存储不可用，无法加密保存 API Key。')
   }
 
-  return Buffer.from(value, 'utf8')
+  return safeStorage.encryptString(value)
 }
 
 function decryptSecret(value: Buffer | null): string | null {
@@ -37,11 +40,11 @@ function decryptSecret(value: Buffer | null): string | null {
     return null
   }
 
-  if (safeStorage.isEncryptionAvailable()) {
-    return safeStorage.decryptString(value)
+  if (!safeStorage.isEncryptionAvailable()) {
+    throw new Error('当前系统安全存储不可用，无法读取已保存的 API Key。')
   }
 
-  return value.toString('utf8')
+  return safeStorage.decryptString(value)
 }
 
 export class LLMModelConfigsRepository {
@@ -53,7 +56,7 @@ export class LLMModelConfigsRepository {
 
   list(): LLMModelConfigRow[] {
     const statement = this.db.prepare<[], LLMModelConfigRow>(`
-      SELECT id, name, provider, endpoint, api_key_encrypted, model_name, temperature, is_default, created_at, updated_at
+      SELECT id, name, provider, endpoint, api_key_encrypted, model_name, temperature, max_tokens, strict_json_mode, thinking_enabled, is_default, created_at, updated_at
       FROM ai_model_configs
       ORDER BY is_default DESC, updated_at DESC, created_at DESC
     `)
@@ -63,7 +66,7 @@ export class LLMModelConfigsRepository {
 
   getById(id: string): LLMModelConfigRow | null {
     const statement = this.db.prepare<[string], LLMModelConfigRow>(`
-      SELECT id, name, provider, endpoint, api_key_encrypted, model_name, temperature, is_default, created_at, updated_at
+      SELECT id, name, provider, endpoint, api_key_encrypted, model_name, temperature, max_tokens, strict_json_mode, thinking_enabled, is_default, created_at, updated_at
       FROM ai_model_configs
       WHERE id = ?
       LIMIT 1
@@ -74,7 +77,7 @@ export class LLMModelConfigsRepository {
 
   getDefault(): LLMModelConfigRow | null {
     const statement = this.db.prepare<[], LLMModelConfigRow>(`
-      SELECT id, name, provider, endpoint, api_key_encrypted, model_name, temperature, is_default, created_at, updated_at
+      SELECT id, name, provider, endpoint, api_key_encrypted, model_name, temperature, max_tokens, strict_json_mode, thinking_enabled, is_default, created_at, updated_at
       FROM ai_model_configs
       WHERE is_default = 1
       LIMIT 1
@@ -86,6 +89,26 @@ export class LLMModelConfigsRepository {
   getApiKey(id: string): string | null {
     const row = this.getById(id)
     return row ? decryptSecret(row.api_key_encrypted) : null
+  }
+
+  private ensureDefaultInvariant(options?: { preferredId?: string; excludeId?: string }): void {
+    const configs = this.list()
+    if (configs.length === 0) {
+      return
+    }
+
+    const defaults = configs.filter((item) => item.is_default === 1)
+    if (defaults.length === 1) {
+      return
+    }
+
+    const eligibleConfigs = options?.excludeId
+      ? configs.filter((item) => item.id !== options.excludeId)
+      : configs
+    const preferred = options?.preferredId ? eligibleConfigs.find((item) => item.id === options.preferredId) : null
+    const chosen = preferred ?? eligibleConfigs[0] ?? configs[0]
+    this.db.prepare('UPDATE ai_model_configs SET is_default = 0, updated_at = CURRENT_TIMESTAMP').run()
+    this.db.prepare('UPDATE ai_model_configs SET is_default = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(chosen.id)
   }
 
   upsert(input: LLMModelConfigInput): string {
@@ -110,6 +133,9 @@ export class LLMModelConfigsRepository {
           api_key_encrypted,
           model_name,
           temperature,
+          max_tokens,
+          strict_json_mode,
+          thinking_enabled,
           is_default,
           updated_at
         ) VALUES (
@@ -120,6 +146,9 @@ export class LLMModelConfigsRepository {
           @api_key_encrypted,
           @model_name,
           @temperature,
+          @max_tokens,
+          @strict_json_mode,
+          @thinking_enabled,
           @is_default,
           CURRENT_TIMESTAMP
         )
@@ -130,6 +159,9 @@ export class LLMModelConfigsRepository {
           api_key_encrypted = excluded.api_key_encrypted,
           model_name = excluded.model_name,
           temperature = excluded.temperature,
+          max_tokens = excluded.max_tokens,
+          strict_json_mode = excluded.strict_json_mode,
+          thinking_enabled = excluded.thinking_enabled,
           is_default = excluded.is_default,
           updated_at = CURRENT_TIMESTAMP
       `).run({
@@ -140,8 +172,18 @@ export class LLMModelConfigsRepository {
         api_key_encrypted: encryptedSecret,
         model_name: input.modelName,
         temperature: input.temperature,
+        max_tokens: input.advanced.maxTokens,
+        strict_json_mode: input.advanced.strictJsonMode ? 1 : 0,
+        thinking_enabled: input.advanced.thinkingEnabled ? 1 : 0,
         is_default: isDefault,
       })
+
+      const shouldPromoteAnotherDefault = existing?.is_default === 1 && isDefault === 0
+      this.ensureDefaultInvariant(
+        shouldPromoteAnotherDefault
+          ? { excludeId: id }
+          : undefined,
+      )
     })
 
     tx()
@@ -149,6 +191,16 @@ export class LLMModelConfigsRepository {
   }
 
   delete(id: string): boolean {
-    return this.db.prepare('DELETE FROM ai_model_configs WHERE id = ?').run(id).changes > 0
+    const tx = this.db.transaction(() => {
+      const deleted = this.db.prepare('DELETE FROM ai_model_configs WHERE id = ?').run(id).changes > 0
+      if (!deleted) {
+        return false
+      }
+
+      this.ensureDefaultInvariant()
+      return true
+    })
+
+    return tx()
   }
 }

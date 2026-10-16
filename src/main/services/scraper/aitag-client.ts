@@ -3,14 +3,20 @@
 import { EntriesRepository } from '../../db/repositories/entries.repo'
 import { ImagesRepository } from '../../db/repositories/images.repo'
 import { PromptTypeDetector } from '../parser/auto-detect'
+import { asObject } from '../parser/json-utils'
+import { WorkflowsService } from '../workflow/workflows.service'
 import { ImageCacheDownloader } from './image-downloader'
 
 const AITAG_BASE_URL = 'https://aitag.win'
+const AITAG_IMAGE_BASE_URL = 'https://ai-img.10118899.xyz'
 
 interface AitagApiImage {
   index?: number
   ai_json?: string
   prompt_text?: string
+  image_path?: string
+  file_name?: string
+  image_type?: string
 }
 
 interface AitagApiWork {
@@ -23,6 +29,8 @@ interface AitagApiWork {
   total_view?: number
   total_bookmarks?: number
   ai_type?: string
+  json?: string
+  original_urls?: string
 }
 
 interface AitagApiResponse {
@@ -107,8 +115,133 @@ function resolveWorkType(work: AitagApiWork, images: AitagApiImage[]): AitagDete
   return 'UNKNOWN'
 }
 
-function buildImageUrl(type: string, authorId: string, pixivId: string, index: number): string {
-  return `${AITAG_BASE_URL}/${type}/${authorId}/${pixivId}_p${index}.webp`
+function normalizeImageRelativeUrl(relativePath: string): string {
+  const normalized = relativePath.replace(/^\/+/, '')
+  return `${AITAG_IMAGE_BASE_URL}/${normalized}`
+}
+
+function normalizeImageTypeSegment(type: string): string {
+  if (type === 'COMFYUI') {
+    return 'ComfyUI'
+  }
+
+  return type
+}
+
+function buildFallbackImageUrl(type: string, authorId: string, pixivId: string, index: number): string {
+  return `${AITAG_IMAGE_BASE_URL}/${normalizeImageTypeSegment(type)}/${authorId}/${pixivId}_p${index}.webp`
+}
+
+function extractFileStem(url: string): string | null {
+  const pathname = new URL(url).pathname
+  const lastSegment = pathname.split('/').pop()
+  if (!lastSegment) {
+    return null
+  }
+
+  const match = lastSegment.match(/^(.+?)\.[a-z0-9]+$/i)
+  return match?.[1] ?? null
+}
+
+function parseJsonArray(value: string | undefined): string[] {
+  if (!value) {
+    return []
+  }
+
+  try {
+    const parsed: unknown = JSON.parse(value)
+    if (Array.isArray(parsed)) {
+      return parsed.filter((item): item is string => typeof item === 'string')
+    }
+  } catch {
+    return []
+  }
+
+  return []
+}
+
+function buildPixivImageLookup(work: AitagApiWork): Map<string, string> {
+  const lookup = new Map<string, string>()
+
+  if (work.json) {
+    try {
+      const parsedUnknown: unknown = JSON.parse(work.json)
+      if (typeof parsedUnknown === 'object' && parsedUnknown !== null && 'meta_pages' in parsedUnknown) {
+        const metaPagesUnknown = parsedUnknown.meta_pages
+        if (Array.isArray(metaPagesUnknown)) {
+          for (const page of metaPagesUnknown) {
+            if (typeof page !== 'object' || page === null || !('image_urls' in page)) {
+              continue
+            }
+
+            const imageUrlsUnknown = asObject(page)?.image_urls
+            const imageUrlsObject = asObject(imageUrlsUnknown)
+            if (!imageUrlsObject) {
+              continue
+            }
+
+            const imageUrls = imageUrlsObject as {
+              large?: unknown
+              medium?: unknown
+              original?: unknown
+            }
+
+            const candidates = [imageUrls.large, imageUrls.medium, imageUrls.original]
+              .filter((url): url is string => typeof url === 'string' && url.length > 0)
+
+            for (const url of candidates) {
+              const stem = extractFileStem(url)
+              if (stem && !lookup.has(stem)) {
+                lookup.set(stem, url)
+              }
+            }
+          }
+        }
+      }
+    } catch {
+      // Ignore malformed Pixiv payloads and fall back below.
+    }
+  }
+
+  for (const url of parseJsonArray(work.original_urls)) {
+    const stem = extractFileStem(url)
+    if (stem && !lookup.has(stem)) {
+      lookup.set(stem, url)
+    }
+  }
+
+  return lookup
+}
+
+function resolveImageUrl(
+  image: AitagApiImage,
+  type: string,
+  authorId: string,
+  pixivId: string,
+  index: number,
+  pixivImageLookup: Map<string, string>,
+): string {
+  if (typeof image.image_path === 'string' && image.image_path.length > 0) {
+    if (/^https?:\/\//i.test(image.image_path)) {
+      return image.image_path
+    }
+
+    return normalizeImageRelativeUrl(image.image_path)
+  }
+
+  if (typeof image.file_name === 'string' && image.file_name.length > 0) {
+    const hasExtension = /\.[a-z0-9]+$/i.test(image.file_name)
+    const normalizedFileName = hasExtension ? image.file_name : `${image.file_name}.webp`
+    return normalizeImageRelativeUrl(`${normalizeImageTypeSegment(type)}/${authorId}/${normalizedFileName}`)
+  }
+
+  const pixivFileName = `${pixivId}_p${index}`
+  const pixivUrl = pixivImageLookup.get(pixivFileName)
+  if (pixivUrl) {
+    return pixivUrl
+  }
+
+  return buildFallbackImageUrl(type, authorId, pixivId, index)
 }
 
 async function fetchJson(url: string): Promise<AitagApiResponse> {
@@ -160,6 +293,7 @@ export class AitagClient {
     const images = Array.isArray(payload.images) ? payload.images : []
     const authorId = String(work.userid ?? '')
     const detectedType = resolveWorkType(work, images)
+    const pixivImageLookup = buildPixivImageLookup(work)
 
     const imageRecords = images.map((image, index) => {
       const imageIndex = typeof image.index === 'number' ? image.index : index
@@ -167,7 +301,7 @@ export class AitagClient {
         index: imageIndex,
         aiJson: image.ai_json ?? '',
         promptText: image.prompt_text ?? '',
-        originalUrl: buildImageUrl(detectedType, authorId, pixivId, imageIndex),
+        originalUrl: resolveImageUrl(image, detectedType, authorId, pixivId, imageIndex, pixivImageLookup),
         localPath: null,
       }
     })
@@ -200,6 +334,7 @@ export class AitagScraperService {
     private readonly downloader = new ImageCacheDownloader(),
     private readonly entriesRepository = new EntriesRepository(),
     private readonly imagesRepository = new ImagesRepository(),
+    private readonly workflowsService = new WorkflowsService(),
   ) {}
 
   async importByInput(input: string): Promise<AitagImportResult> {
@@ -221,6 +356,19 @@ export class AitagScraperService {
     })
 
     this.imagesRepository.replaceForEntry(entryId, downloaded)
+
+    if (result.detectedType === 'ComfyUI') {
+      const workflowSource = downloaded
+        .map((image) => image.aiJson.trim().length > 0 ? image.aiJson : image.promptText)
+        .find((value) => value.trim().length > 0)
+      if (workflowSource) {
+        this.workflowsService.ensureWorkflowForEntry({
+          entryId,
+          name: `${result.work.title || result.work.pixivId} Workflow`,
+          workflowJson: workflowSource,
+        })
+      }
+    }
 
     return {
       ...result,

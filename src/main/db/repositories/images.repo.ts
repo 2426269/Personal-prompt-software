@@ -10,6 +10,10 @@ export interface ImageLocalPathRow {
   local_path: string | null
 }
 
+interface CountRow {
+  count: number
+}
+
 export class ImagesRepository {
   private readonly db: Database
 
@@ -121,5 +125,59 @@ export class ImagesRepository {
     `)
 
     return statement.run().changes
+  }
+
+  rewriteLocalPathPrefix(sourcePrefix: string, targetPrefix: string): number {
+    const normalizedSource = sourcePrefix.trim()
+    const normalizedTarget = targetPrefix.trim()
+
+    if (!normalizedSource || !normalizedTarget || normalizedSource === normalizedTarget) {
+      return 0
+    }
+
+    const statement = this.db.prepare(`
+      UPDATE images
+      SET local_path = ? || substr(local_path, ? + 1)
+      WHERE local_path LIKE ? ESCAPE '\\'
+    `)
+
+    return statement.run(
+      normalizedTarget,
+      normalizedSource.length,
+      `${normalizedSource.replace(/[\\%_]/g, '\\$&')}%`,
+    ).changes
+  }
+
+  repointAllLocalPathsToCacheRoot(cacheRoot: string): number {
+    const normalizedRoot = cacheRoot.trim()
+    if (!normalizedRoot) {
+      return 0
+    }
+
+    const marker = '\\cache\\aitag'
+    const statement = this.db.prepare(`
+      UPDATE images
+      SET local_path = ? || substr(local_path, instr(local_path, ?) + length(?))
+      WHERE local_path IS NOT NULL
+        AND local_path != ''
+        AND instr(local_path, ?) > 0
+    `)
+
+    return statement.run(normalizedRoot, marker, marker, marker).changes
+  }
+
+  countByLocalPathPrefix(prefix: string): number {
+    const normalizedPrefix = prefix.trim()
+    if (!normalizedPrefix) {
+      return 0
+    }
+
+    const statement = this.db.prepare<[string], CountRow>(`
+      SELECT COUNT(*) AS count
+      FROM images
+      WHERE local_path LIKE ? ESCAPE '\\'
+    `)
+
+    return statement.get(`${normalizedPrefix.replace(/[\\%_]/g, '\\$&')}%`)?.count ?? 0
   }
 }

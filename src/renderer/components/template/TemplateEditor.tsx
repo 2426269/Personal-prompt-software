@@ -45,7 +45,7 @@ export function TemplateEditor() {
       name: '新模板',
       systemPrompt: '',
       templateJson: [],
-      mode: 'sanitize',
+      mode: 'full',
     })
   }
 
@@ -185,27 +185,10 @@ export function TemplateEditor() {
           </div>
 
           <div className={styles.formGroup}>
-            <div className={styles.formRow}>
-              <label className={styles.formLabel} style={{ marginBottom: 0 }}>分析模式</label>
-              <div className={styles.modeToggle}>
-                <button
-                  className={`${styles.modeOption} ${draft.mode === 'sanitize' ? styles.active : ''}`}
-                  onClick={() => updateDraft({ mode: 'sanitize' })}
-                >
-                  🔒 脱敏
-                </button>
-                <button
-                  className={`${styles.modeOption} ${draft.mode === 'full' ? styles.active : ''}`}
-                  onClick={() => updateDraft({ mode: 'full' })}
-                >
-                  🔓 完整
-                </button>
-              </div>
+            <label className={styles.formLabel}>分析总提示词</label>
+            <div className={styles.helpText}>
+              当前分析链路只保留这一层可编辑提示词。作品原始数据会作为独立 JSON payload 直接发送给模型。
             </div>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label className={styles.formLabel}>System Prompt</label>
             <textarea
               className={styles.formTextarea}
               value={draft.systemPrompt}

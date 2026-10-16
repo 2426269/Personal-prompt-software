@@ -52,3 +52,33 @@ geminiAI提示词管理器需求说明书_更新.md
 npm-debug.log*
 # Electron build artifacts
 dist-electron/
+dist-app/
+dist-preload/
+out-app*/
+out-asar/
+out-win/
+temp-*/
+build_log*.txt
+err*.txt
+run_*.txt
+strict_err.txt
+trace.txt
+win_err.txt
+out.txt
+index.js
+preload.mjs
+dev-runtime-check*.log
+eslint_output.json
+
+# Public source snapshots: never add private app data or unrelated reference projects.
+PromptForge-AppData/
+Anima-Style-Explorer-main/
+Anima-Style-Explorer-main.zip
+.agent/
+.sisyphus/
+*.db
+*.db-*
+*.sqlite-*
+*.sqlite3-*
+*.pem
+*.key

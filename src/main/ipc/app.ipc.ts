@@ -10,7 +10,7 @@ export function registerAppIPC(): () => void {
     wrapIPC<PingPayload>(() => ({
       message: 'pong',
       timestamp: new Date().toISOString(),
-    })),
+    }), { channel: IPC_CHANNELS.APP_PING }),
   )
 
   return () => {

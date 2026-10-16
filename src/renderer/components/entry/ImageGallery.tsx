@@ -1,5 +1,6 @@
 import type { AitagImage } from '@shared/types/importer'
 import { useCallback, useEffect, useState } from 'react'
+import { toImageSrc } from '../../utils/image-src'
 import styles from './ImageGallery.module.css'
 
 interface ImageGalleryProps {
@@ -33,9 +34,7 @@ export function ImageGallery({ images, initialIndex = 0, onClose }: ImageGallery
   if (!images.length) return null
 
   const currentImage = images[currentIndex]
-  const imgSrc = currentImage?.localPath
-    ? `file://${currentImage.localPath}`
-    : currentImage?.originalUrl
+  const imgSrc = toImageSrc(currentImage)
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -73,7 +72,7 @@ export function ImageGallery({ images, initialIndex = 0, onClose }: ImageGallery
       {images.length > 1 && (
         <div className={styles.thumbnailStrip} onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}>
           {images.map((img, idx) => {
-            const thumbSrc = img.localPath ? `file://${img.localPath}` : img.originalUrl
+            const thumbSrc = toImageSrc(img)
             return (
               <div
                 key={img.index}

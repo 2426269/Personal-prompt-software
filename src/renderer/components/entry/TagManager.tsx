@@ -11,9 +11,10 @@ interface TagManagerProps {
   entryId: string
   currentTags: UserTag[]
   onTagsChanged: (tags: UserTag[]) => void
+  onTagClick?: (tag: UserTag) => void
 }
 
-export function TagManager({ entryId, currentTags, onTagsChanged }: TagManagerProps) {
+export function TagManager({ entryId, currentTags, onTagsChanged, onTagClick }: TagManagerProps) {
   const [allTags, setAllTags] = useState<UserTag[]>([])
   const [search, setSearch] = useState('')
   const [isCreating, setIsCreating] = useState(false)
@@ -113,7 +114,13 @@ export function TagManager({ entryId, currentTags, onTagsChanged }: TagManagerPr
                 border: `1px solid ${tag.color}40`,
               }}
             >
-              {tag.name}
+              <button
+                type="button"
+                className={`${styles.tagLabelButton} ${onTagClick ? styles.tagLabelInteractive : ''}`}
+                onClick={() => onTagClick?.(tag)}
+              >
+                {tag.name}
+              </button>
               <span className={styles.tagRemove} onClick={() => void handleRemoveTag(tag.id)}>✕</span>
             </span>
           ))}

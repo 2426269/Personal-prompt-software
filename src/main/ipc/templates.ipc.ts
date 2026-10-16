@@ -6,23 +6,23 @@ import type { PromptTemplate, PromptTemplateInput } from '@shared/types/template
 import { TemplatesService } from '../services/templates/templates.service'
 import { wrapIPC } from './wrap-ipc'
 
-const templatesService = new TemplatesService()
-
 export function registerTemplatesIPC(): () => void {
+  const templatesService = new TemplatesService()
+  
   ipcMain.handle(IPC_CHANNELS.DB_TEMPLATES_LIST, async () =>
-    wrapIPC<PromptTemplate[]>(() => templatesService.list()),
+    wrapIPC<PromptTemplate[]>(() => templatesService.list(), { channel: IPC_CHANNELS.DB_TEMPLATES_LIST }),
   )
 
   ipcMain.handle(IPC_CHANNELS.DB_TEMPLATES_GET, async (_event, payload: { id: string }) =>
-    wrapIPC<PromptTemplate | null>(() => templatesService.get(payload.id)),
+    wrapIPC<PromptTemplate | null>(() => templatesService.get(payload.id), { channel: IPC_CHANNELS.DB_TEMPLATES_GET, payload }),
   )
 
   ipcMain.handle(IPC_CHANNELS.DB_TEMPLATES_SAVE, async (_event, payload: PromptTemplateInput) =>
-    wrapIPC<PromptTemplate>(() => templatesService.save(payload)),
+    wrapIPC<PromptTemplate>(() => templatesService.save(payload), { channel: IPC_CHANNELS.DB_TEMPLATES_SAVE, payload }),
   )
 
   ipcMain.handle(IPC_CHANNELS.DB_TEMPLATES_DELETE, async (_event, payload: { id: string }) =>
-    wrapIPC<boolean>(() => templatesService.delete(payload.id)),
+    wrapIPC<boolean>(() => templatesService.delete(payload.id), { channel: IPC_CHANNELS.DB_TEMPLATES_DELETE, payload }),
   )
 
   return () => {

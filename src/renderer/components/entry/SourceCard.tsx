@@ -13,6 +13,7 @@ interface SourceCardProps {
   totalView?: number | null
   totalBookmarks?: number | null
   sourceUrl?: string | null
+  onTagClick?: (tag: string) => void
 }
 
 const TYPE_CONFIG: Record<string, { label: string; className: string }> = {
@@ -47,6 +48,7 @@ export function SourceCard({
   totalView,
   totalBookmarks,
   sourceUrl,
+  onTagClick,
 }: SourceCardProps) {
   const config = TYPE_CONFIG[type] ?? TYPE_CONFIG.Unknown
 
@@ -93,14 +95,16 @@ export function SourceCard({
       {/* Tags Pills */}
       {tags && tags.length > 0 && (
         <div className={styles.tagsContainer}>
-          {tags.slice(0, 15).map((tag) => (
-            <span key={tag} className={styles.tagPill}>
+          {tags.map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              className={`${styles.tagPill} ${onTagClick ? styles.tagPillButton : ''}`}
+              onClick={() => onTagClick?.(tag)}
+            >
               {tag}
-            </span>
+            </button>
           ))}
-          {tags.length > 15 && (
-            <span className={styles.tagPill}>+{tags.length - 15}</span>
-          )}
         </div>
       )}
 

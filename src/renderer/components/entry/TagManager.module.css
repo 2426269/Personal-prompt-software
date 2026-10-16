@@ -46,6 +46,23 @@
   cursor: default;
 }
 
+.tagLabelButton {
+  background: transparent;
+  border: none;
+  color: inherit;
+  padding: 0;
+  font: inherit;
+  cursor: inherit;
+}
+
+.tagLabelInteractive {
+  cursor: pointer;
+}
+
+.tagLabelInteractive:hover {
+  text-decoration: underline;
+}
+
 .tagRemove {
   cursor: pointer;
   opacity: 0.6;

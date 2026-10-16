@@ -1,6 +1,7 @@
-﻿import type { ComfySamplerNode, ParsedComfyUIPrompt, PromptTag } from '@shared/types/importer'
+﻿import type { ComfySamplerNode, ParsedComfyUIPrompt, PromptModelReference, PromptTag } from '@shared/types/importer'
 
 import { asObject, extractJsonChunks, safeJsonParse } from './json-utils'
+import { mergeUniqueModelReferences } from './model-metadata'
 
 function asNumber(value: unknown): number | null {
   if (typeof value === 'number' && Number.isFinite(value)) {
@@ -16,11 +17,7 @@ function asNumber(value: unknown): number | null {
 }
 
 function asString(value: unknown): string | null {
-  if (typeof value === 'string') {
-    return value
-  }
-
-  return null
+  return typeof value === 'string' ? value : null
 }
 
 function asNodeId(value: unknown): string {
@@ -82,26 +79,27 @@ function resolveComfyPayload(
 }
 
 function pushUnique(list: string[], value: string | null): void {
-  if (!value) {
+  if (!value || list.includes(value)) {
     return
   }
 
-  if (!list.includes(value)) {
-    list.push(value)
-  }
+  list.push(value)
 }
 
 function pushUniqueLora(list: PromptTag[], loraName: string | null, weight: number | null): void {
-  if (!loraName) {
-    return
-  }
-
-  const exists = list.find((item) => item.text === loraName)
-  if (exists) {
+  if (!loraName || list.some((item) => item.text === loraName)) {
     return
   }
 
   list.push(weight === null ? { text: loraName } : { text: loraName, weight })
+}
+
+function pushUniqueCheckpoint(list: PromptModelReference[], checkpointName: string | null): void {
+  if (!checkpointName || list.some((item) => item.text === checkpointName)) {
+    return
+  }
+
+  list.push({ text: checkpointName })
 }
 
 function classifyPromptTarget(nodeId: string, classType: string, title: string | null): 'positive' | 'negative' {
@@ -124,7 +122,7 @@ function parseSamplerFromInputs(nodeId: string, inputs: Record<string, unknown>)
 function parseApiPrompt(payload: Record<string, unknown>): ParsedComfyUIPrompt {
   const positive: string[] = []
   const negative: string[] = []
-  const checkpoints: string[] = []
+  const checkpoints: PromptModelReference[] = []
   const loras: PromptTag[] = []
   const samplers: ComfySamplerNode[] = []
   let width: number | null = null
@@ -142,7 +140,7 @@ function parseApiPrompt(payload: Record<string, unknown>): ParsedComfyUIPrompt {
       continue
     }
 
-    if (classType === 'CLIPTextEncode') {
+    if (classType.includes('CLIPTextEncode')) {
       const text = asString(inputs.text)
       const title = asString(asObject(node._meta)?.title)
       const target = classifyPromptTarget(nodeId, classType, title)
@@ -160,7 +158,7 @@ function parseApiPrompt(payload: Record<string, unknown>): ParsedComfyUIPrompt {
     }
 
     if (classType.includes('CheckpointLoader')) {
-      pushUnique(checkpoints, asString(inputs.ckpt_name))
+      pushUniqueCheckpoint(checkpoints, asString(inputs.ckpt_name))
       continue
     }
 
@@ -183,12 +181,9 @@ function parseApiPrompt(payload: Record<string, unknown>): ParsedComfyUIPrompt {
     type: 'ComfyUI',
     format: 'api_prompt',
     nodeCount: Object.keys(payload).length,
-    prompts: {
-      positive,
-      negative,
-    },
-    checkpoints,
-    loras,
+    prompts: { positive, negative },
+    checkpoints: mergeUniqueModelReferences(checkpoints),
+    loras: mergeUniqueModelReferences(loras),
     samplers,
     size: { width, height },
     raw: payload,
@@ -202,7 +197,7 @@ function getWidgets(node: Record<string, unknown>): unknown[] {
 function parseUiWorkflow(payload: Record<string, unknown>): ParsedComfyUIPrompt {
   const positive: string[] = []
   const negative: string[] = []
-  const checkpoints: string[] = []
+  const checkpoints: PromptModelReference[] = []
   const loras: PromptTag[] = []
   const samplers: ComfySamplerNode[] = []
   let width: number | null = null
@@ -221,7 +216,7 @@ function parseUiWorkflow(payload: Record<string, unknown>): ParsedComfyUIPrompt 
     const inputs = asObject(node.inputs) ?? {}
     const widgets = getWidgets(node)
 
-    if (classType === 'CLIPTextEncode') {
+    if (classType.includes('CLIPTextEncode')) {
       const text = asString(inputs.text) ?? asString(widgets[0])
       const target = classifyPromptTarget(nodeId, classType, asString(node.title))
       if (target === 'negative') {
@@ -233,7 +228,7 @@ function parseUiWorkflow(payload: Record<string, unknown>): ParsedComfyUIPrompt 
     }
 
     if (classType === 'KSampler') {
-      const sampler: ComfySamplerNode = {
+      samplers.push({
         nodeId,
         seed: asNumber(inputs.seed) ?? asNumber(widgets[0]),
         steps: asNumber(inputs.steps) ?? asNumber(widgets[2]),
@@ -241,13 +236,12 @@ function parseUiWorkflow(payload: Record<string, unknown>): ParsedComfyUIPrompt 
         sampler: asString(inputs.sampler_name) ?? asString(widgets[4]),
         scheduler: asString(inputs.scheduler) ?? asString(widgets[5]),
         denoise: asNumber(inputs.denoise) ?? asNumber(widgets[6]),
-      }
-      samplers.push(sampler)
+      })
       continue
     }
 
     if (classType.includes('CheckpointLoader')) {
-      pushUnique(checkpoints, asString(inputs.ckpt_name) ?? asString(widgets[0]))
+      pushUniqueCheckpoint(checkpoints, asString(inputs.ckpt_name) ?? asString(widgets[0]))
       continue
     }
 
@@ -270,12 +264,9 @@ function parseUiWorkflow(payload: Record<string, unknown>): ParsedComfyUIPrompt 
     type: 'ComfyUI',
     format: 'ui_workflow',
     nodeCount: nodes.length,
-    prompts: {
-      positive,
-      negative,
-    },
-    checkpoints,
-    loras,
+    prompts: { positive, negative },
+    checkpoints: mergeUniqueModelReferences(checkpoints),
+    loras: mergeUniqueModelReferences(loras),
     samplers,
     size: { width, height },
     raw: payload,
@@ -285,7 +276,6 @@ function parseUiWorkflow(payload: Record<string, unknown>): ParsedComfyUIPrompt 
 export class ComfyUIParser {
   parse(input: string | Record<string, unknown>): ParsedComfyUIPrompt {
     const resolved = resolveComfyPayload(input)
-
     if (resolved.format === 'ui_workflow') {
       return parseUiWorkflow(resolved.payload)
     }

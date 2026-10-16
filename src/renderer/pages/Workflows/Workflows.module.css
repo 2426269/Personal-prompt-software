@@ -1,0 +1,266 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.subtitle,
+.detailMeta,
+.workflowMeta,
+.infoHint,
+.sidebarMeta,
+.statLabel {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.subtitle {
+  margin: 8px 0 0;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.statCard,
+.sidebarCard,
+.detailPanel,
+.infoCard,
+.codeBlock {
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(18, 24, 34, 0.98), rgba(15, 20, 29, 0.96));
+}
+
+.statCard {
+  padding: 14px 16px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 18px;
+  min-height: 0;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sidebarCard,
+.detailPanel {
+  padding: 16px;
+}
+
+.searchInput,
+.select {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border-default);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.workflowList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.workflowItem,
+.secondaryButton,
+.primaryButton,
+.viewTab,
+.viewTabActive,
+.linkButton {
+  border: none;
+}
+
+.workflowItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  text-align: left;
+  color: inherit;
+}
+
+.workflowItemActive {
+  outline: 1px solid rgba(31, 111, 235, 0.58);
+  background: rgba(31, 111, 235, 0.08);
+}
+
+.workflowItemHeader,
+.detailHeader,
+.actionGroup,
+.bindRow,
+.toggleRow,
+.viewTabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.workflowItemHeader,
+.detailHeader {
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.workflowName,
+.detailTitle,
+.infoValue {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.workflowName {
+  font-size: 15px;
+}
+
+.detailTitle {
+  margin: 8px 0;
+  font-size: 26px;
+}
+
+.inlineBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(31, 111, 235, 0.14);
+  color: #a8c5ff;
+  font-size: 11px;
+}
+
+.detailPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.infoCard {
+  padding: 14px;
+}
+
+.infoLabel {
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.infoValue {
+  margin-top: 8px;
+  font-size: 16px;
+}
+
+.secondaryButton,
+.primaryButton,
+.viewTab,
+.viewTabActive,
+.linkButton {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.secondaryButton,
+.viewTab,
+.linkButton {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.primaryButton,
+.viewTabActive {
+  background: linear-gradient(135deg, var(--accent-blue), #4f8cff);
+  color: white;
+}
+
+.viewTabs {
+  align-items: center;
+}
+
+.codeBlock {
+  min-height: 420px;
+  margin: 0;
+  padding: 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: auto;
+}
+
+.stateShell,
+.errorBanner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.errorBanner {
+  min-height: auto;
+  justify-content: flex-start;
+  padding: 12px 14px;
+  border: 1px solid rgba(244, 112, 103, 0.26);
+  border-radius: 14px;
+  background: rgba(244, 112, 103, 0.08);
+  color: #ffb1ab;
+}
+
+@media (max-width: 1280px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .stats {
+    width: 100%;
+    grid-template-columns: 1fr;
+  }
+}

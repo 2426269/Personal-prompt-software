@@ -4,6 +4,17 @@ import type { PromptTemplateMode } from './template'
 export type LLMProvider = 'openai' | 'deepseek' | 'qwen' | 'glm' | 'ollama'
 export type AnalysisItemSource = 'llm' | 'manual'
 
+export interface LLMModelDescriptor {
+  id: string
+  ownedBy: string | null
+}
+
+export interface LLMAdvancedSettings {
+  strictJsonMode: boolean
+  maxTokens: number | null
+  thinkingEnabled: boolean
+}
+
 export interface LLMModelConfigSummary {
   id: string
   name: string
@@ -11,6 +22,7 @@ export interface LLMModelConfigSummary {
   endpoint: string
   modelName: string
   temperature: number
+  advanced: LLMAdvancedSettings
   isDefault: boolean
   hasApiKey: boolean
   createdAt: string
@@ -25,6 +37,7 @@ export interface LLMModelConfigInput {
   apiKey?: string | null
   modelName: string
   temperature: number
+  advanced: LLMAdvancedSettings
   isDefault?: boolean
 }
 
@@ -40,6 +53,7 @@ export interface LLMConnectionTestResult {
   model: string
   latencyMs: number
   message: string
+  availableModels: LLMModelDescriptor[]
 }
 
 export interface AnalysisTagItem {
@@ -71,6 +85,7 @@ export interface AnalysisSettingsCommon {
 export interface EntryAnalysisResult {
   id: string
   entryId: string
+  imageIndex: number | null
   templateId: string | null
   configId: string | null
   templateName: string | null
@@ -89,6 +104,7 @@ export interface EntryAnalysisResult {
 
 export interface AnalyzeEntryInput {
   entryId: string
+  imageIndex?: number | null
   configId?: string | null
   templateId?: string | null
   mode?: PromptTemplateMode

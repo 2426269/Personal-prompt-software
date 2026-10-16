@@ -27,6 +27,13 @@ export default defineConfig({
       main: {
         entry: 'src/main/index.ts',
         vite: {
+          build: {
+            outDir: path.resolve(__dirname, 'dist-electron'),
+            emptyOutDir: true,
+            rollupOptions: {
+              external: ['better-sqlite3', 'bindings']
+            }
+          },
           resolve: {
             alias: mainAlias,
           },
@@ -35,6 +42,18 @@ export default defineConfig({
       preload: {
         input: path.join(__dirname, 'src/preload/index.ts'),
         vite: {
+          build: {
+            outDir: path.resolve(__dirname, 'dist-preload'),
+            emptyOutDir: true,
+            rollupOptions: {
+              output: {
+                format: 'es',
+                entryFileNames: 'preload.mjs',
+                chunkFileNames: 'preload-[name].mjs',
+                assetFileNames: 'preload-[name].[ext]',
+              },
+            },
+          },
           resolve: {
             alias: mainAlias,
           },

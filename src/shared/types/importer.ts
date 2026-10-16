@@ -6,10 +6,23 @@ export interface DetectTypeResult {
   reasons: string[]
 }
 
-export interface PromptTag {
+export interface CivitaiResourceRef {
+  kind: 'lora' | 'checkpoint' | 'vae' | 'unknown'
+  name: string | null
+  hash: string | null
+  modelId: number | null
+  modelVersionId: number | null
+}
+
+export interface PromptModelReference {
   text: string
   weight?: number
+  hash?: string | null
+  modelId?: number | null
+  modelVersionId?: number | null
 }
+
+export type PromptTag = PromptModelReference
 
 export interface ParsedNAIPrompt {
   type: 'NAI'
@@ -34,10 +47,16 @@ export interface SDParameters {
   width: number | null
   height: number | null
   model: string | null
+  modelHash: string | null
+  modelId: number | null
+  modelVersionId: number | null
+  vae: string | null
+  vaeHash: string | null
   clipSkip: number | null
   denoisingStrength: number | null
   hiresUpscale: number | null
   hiresSteps: number | null
+  civitaiResources: CivitaiResourceRef[]
   extras: Record<string, string>
 }
 
@@ -46,6 +65,7 @@ export interface ParsedSDPrompt {
   prompt: string
   negativePrompt: string
   loras: PromptTag[]
+  checkpoints: PromptModelReference[]
   embeddings: string[]
   parameters: SDParameters
   rawText: string
@@ -71,7 +91,7 @@ export interface ParsedComfyUIPrompt {
     positive: string[]
     negative: string[]
   }
-  checkpoints: string[]
+  checkpoints: PromptModelReference[]
   loras: PromptTag[]
   samplers: ComfySamplerNode[]
   size: {

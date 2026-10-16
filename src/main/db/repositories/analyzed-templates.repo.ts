@@ -11,6 +11,7 @@ import { getDatabase } from '../database'
 export interface AnalyzedTemplateRow {
   id: string
   entry_id: string
+  image_index: number | null
   template_id: string | null
   config_id: string | null
   template_json: string
@@ -28,6 +29,7 @@ export interface AnalyzedTemplateRow {
 
 export interface SaveAnalysisInput {
   entryId: string
+  imageIndex: number | null
   templateId: string | null
   configId: string | null
   categories: AnalysisCategory[]
@@ -48,11 +50,12 @@ export class AnalyzedTemplatesRepository {
     this.db = db
   }
 
-  getByEntryId(entryId: string): AnalyzedTemplateRow | null {
+  listByEntryId(entryId: string): AnalyzedTemplateRow[] {
     const statement = this.db.prepare<[string], AnalyzedTemplateRow>(`
       SELECT
         id,
         entry_id,
+        image_index,
         template_id,
         config_id,
         template_json,
@@ -68,20 +71,115 @@ export class AnalyzedTemplatesRepository {
         updated_at
       FROM analyzed_templates
       WHERE entry_id = ?
+      ORDER BY
+        CASE WHEN image_index IS NULL THEN 1 ELSE 0 END,
+        image_index ASC,
+        updated_at DESC
+    `)
+
+    return statement.all(entryId)
+  }
+
+  getByEntryId(entryId: string): AnalyzedTemplateRow | null {
+    return this.listByEntryId(entryId)[0] ?? null
+  }
+
+  getByEntryIdAndImageIndex(entryId: string, imageIndex: number | null): AnalyzedTemplateRow | null {
+    if (imageIndex == null) {
+      const statement = this.db.prepare<[string], AnalyzedTemplateRow>(`
+        SELECT
+          id,
+          entry_id,
+          image_index,
+          template_id,
+          config_id,
+          template_json,
+          removed_specific,
+          settings_common,
+          custom_categories,
+          ai_model_used,
+          nsfw_mode,
+          prompt_type,
+          raw_response,
+          sanitized_payload,
+          created_at,
+          updated_at
+        FROM analyzed_templates
+        WHERE entry_id = ? AND image_index IS NULL
+        LIMIT 1
+      `)
+      return statement.get(entryId) ?? null
+    }
+
+    const statement = this.db.prepare<[string, number], AnalyzedTemplateRow>(`
+      SELECT
+        id,
+        entry_id,
+        image_index,
+        template_id,
+        config_id,
+        template_json,
+        removed_specific,
+        settings_common,
+        custom_categories,
+        ai_model_used,
+        nsfw_mode,
+        prompt_type,
+        raw_response,
+        sanitized_payload,
+        created_at,
+        updated_at
+      FROM analyzed_templates
+      WHERE entry_id = ? AND image_index = ?
       LIMIT 1
     `)
 
-    return statement.get(entryId) ?? null
+    return statement.get(entryId, imageIndex) ?? null
   }
 
   save(input: SaveAnalysisInput): string {
-    const existing = this.getByEntryId(input.entryId)
+    const existing = this.getByEntryIdAndImageIndex(input.entryId, input.imageIndex)
     const id = existing?.id ?? randomUUID()
+
+    if (existing) {
+      this.db.prepare(`
+        UPDATE analyzed_templates
+        SET
+          template_id = @template_id,
+          config_id = @config_id,
+          template_json = @template_json,
+          removed_specific = @removed_specific,
+          settings_common = @settings_common,
+          custom_categories = @custom_categories,
+          ai_model_used = @ai_model_used,
+          nsfw_mode = @nsfw_mode,
+          prompt_type = @prompt_type,
+          raw_response = @raw_response,
+          sanitized_payload = @sanitized_payload,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = @id
+      `).run({
+        id,
+        template_id: input.templateId,
+        config_id: input.configId,
+        template_json: JSON.stringify(input.categories),
+        removed_specific: JSON.stringify(input.removedSpecific),
+        settings_common: JSON.stringify(input.settingsCommon),
+        custom_categories: JSON.stringify(input.customCategories),
+        ai_model_used: input.aiModelUsed,
+        nsfw_mode: input.nsfwMode,
+        prompt_type: input.promptType,
+        raw_response: input.rawResponse,
+        sanitized_payload: input.sanitizedPayload,
+      })
+      return id
+    }
 
     this.db.prepare(`
       INSERT INTO analyzed_templates (
         id,
         entry_id,
+        image_index,
         template_id,
         config_id,
         template_json,
@@ -97,6 +195,7 @@ export class AnalyzedTemplatesRepository {
       ) VALUES (
         @id,
         @entry_id,
+        @image_index,
         @template_id,
         @config_id,
         @template_json,
@@ -110,22 +209,10 @@ export class AnalyzedTemplatesRepository {
         @sanitized_payload,
         CURRENT_TIMESTAMP
       )
-      ON CONFLICT(entry_id) DO UPDATE SET
-        template_id = excluded.template_id,
-        config_id = excluded.config_id,
-        template_json = excluded.template_json,
-        removed_specific = excluded.removed_specific,
-        settings_common = excluded.settings_common,
-        custom_categories = excluded.custom_categories,
-        ai_model_used = excluded.ai_model_used,
-        nsfw_mode = excluded.nsfw_mode,
-        prompt_type = excluded.prompt_type,
-        raw_response = excluded.raw_response,
-        sanitized_payload = excluded.sanitized_payload,
-        updated_at = CURRENT_TIMESTAMP
     `).run({
       id,
       entry_id: input.entryId,
+      image_index: input.imageIndex,
       template_id: input.templateId,
       config_id: input.configId,
       template_json: JSON.stringify(input.categories),

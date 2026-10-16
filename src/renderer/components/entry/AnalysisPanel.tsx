@@ -6,9 +6,10 @@ interface AnalysisPanelProps {
   analysis: EntryAnalysisResult | null
   isAnalyzing: boolean
   onAnalyze: () => void
+  onExportPreset?: () => void
 }
 
-export function AnalysisPanel({ analysis, isAnalyzing, onAnalyze }: AnalysisPanelProps) {
+export function AnalysisPanel({ analysis, isAnalyzing, onAnalyze, onExportPreset }: AnalysisPanelProps) {
   if (!analysis) {
     return (
       <div className={styles.emptyAnalysis}>
@@ -23,32 +24,36 @@ export function AnalysisPanel({ analysis, isAnalyzing, onAnalyze }: AnalysisPane
 
   return (
     <div className={styles.analysisPanel}>
-      {/* Meta info */}
       <div className={styles.analysisMeta}>
-        <span className={styles.metaBadge}>{analysis.nsfwMode === 'sanitize' ? '🔒 脱敏' : '🔓 完整'}</span>
-        {analysis.aiModelUsed && <span className={styles.metaBadge}>🤖 {analysis.aiModelUsed}</span>}
-        <span className={styles.metaBadge}>📅 {new Date(analysis.createdAt).toLocaleString('zh-CN')}</span>
-        <button className={styles.analyzeBtn} onClick={onAnalyze} disabled={isAnalyzing} style={{ marginLeft: 'auto', padding: '4px 12px', fontSize: '12px' }}>
-          {isAnalyzing ? '⏳...' : '🔄 重新分析'}
-        </button>
+        <div className={styles.metaBadges}>
+          <span className={styles.metaBadge}>{analysis.nsfwMode === 'sanitize' ? '🔒 脱敏' : '🔓 完整'}</span>
+          {analysis.aiModelUsed && <span className={styles.metaBadge}>🤖 {analysis.aiModelUsed}</span>}
+          <span className={styles.metaBadge}>📅 {new Date(analysis.createdAt).toLocaleString('zh-CN')}</span>
+        </div>
+        <div className={styles.metaActions}>
+          <button className={`${styles.analyzeBtn} ${styles.compactAnalyzeBtn}`} onClick={onAnalyze} disabled={isAnalyzing}>
+            {isAnalyzing ? '⏳ 分析中' : '🔄 重新分析'}
+          </button>
+          {onExportPreset && (
+            <button className={styles.exportBtn} onClick={onExportPreset}>
+              导出为预设
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Common settings */}
       {analysis.settingsCommon && (
         <SettingsGrid settings={analysis.settingsCommon} />
       )}
 
-      {/* Categories */}
       {analysis.categories.map((cat) => (
         <CategoryBlock key={cat.key} category={cat} />
       ))} 
 
-      {/* Custom categories */}
       {Object.entries(analysis.customCategories).map(([key, items]) => (
         <CategoryBlock key={`custom-${key}`} category={{ key, label: key, items }} />
       ))}
 
-      {/* Removed specific items */}
       {analysis.removedSpecific.length > 0 && (
         <div className={styles.removedSection}>
           <div className={styles.removedTitle}>🗑️ 已移除的特定项 ({analysis.removedSpecific.length})</div>
